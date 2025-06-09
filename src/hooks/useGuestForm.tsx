@@ -33,8 +33,27 @@ export interface GuestFormData {
   importantNotables: string[];
 }
 
-export const useGuestForm = () => {
-  const [formData, setFormData] = useState<GuestFormData>({
+const getInitialFormData = (initialData?: any): GuestFormData => {
+  if (initialData) {
+    return {
+      name: initialData.name || '',
+      email: initialData.email || '',
+      phone: initialData.phone || '',
+      tags: initialData.tags || [],
+      tablePreferences: initialData.tablePreferences || [],
+      foodPreferences: initialData.foodPreferences || [],
+      winePreferences: initialData.winePreferences || [],
+      cocktailPreferences: initialData.cocktailPreferences || [],
+      spiritsPreferences: initialData.spiritsPreferences || [],
+      allergies: initialData.allergies || [],
+      importantDates: initialData.importantDates || [],
+      connections: initialData.connections || [],
+      notes: initialData.notes || '',
+      importantNotables: initialData.importantNotables || [],
+    };
+  }
+
+  return {
     name: '',
     email: '',
     phone: '',
@@ -49,7 +68,11 @@ export const useGuestForm = () => {
     connections: [],
     notes: '',
     importantNotables: [],
-  });
+  };
+};
+
+export const useGuestForm = (initialData?: any) => {
+  const [formData, setFormData] = useState<GuestFormData>(() => getInitialFormData(initialData));
 
   const updateField = <K extends keyof GuestFormData>(
     field: K,
@@ -59,22 +82,7 @@ export const useGuestForm = () => {
   };
 
   const resetForm = () => {
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      tags: [],
-      tablePreferences: [],
-      foodPreferences: [],
-      winePreferences: [],
-      cocktailPreferences: [],
-      spiritsPreferences: [],
-      allergies: [],
-      importantDates: [],
-      connections: [],
-      notes: '',
-      importantNotables: [],
-    });
+    setFormData(getInitialFormData());
   };
 
   return {
