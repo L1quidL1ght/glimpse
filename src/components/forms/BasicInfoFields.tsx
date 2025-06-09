@@ -6,9 +6,16 @@ import { GuestFormData } from '@/hooks/useGuestForm';
 interface BasicInfoFieldsProps {
   formData: GuestFormData;
   updateField: <K extends keyof GuestFormData>(field: K, value: GuestFormData[K]) => void;
+  existingPhoneNumbers?: string[];
 }
 
-const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ formData, updateField }) => {
+const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ 
+  formData, 
+  updateField, 
+  existingPhoneNumbers = [] 
+}) => {
+  const phoneExists = formData.phone && existingPhoneNumbers.includes(formData.phone);
+
   return (
     <div className="space-y-4">
       {/* Basic Information */}
@@ -39,7 +46,13 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({ formData, updateField
           value={formData.phone}
           onChange={(e) => updateField('phone', e.target.value)}
           placeholder="(555) 123-4567"
+          className={phoneExists ? 'border-destructive' : ''}
         />
+        {phoneExists && (
+          <div className="text-sm text-destructive">
+            This phone number is already in use by another guest
+          </div>
+        )}
       </div>
     </div>
   );

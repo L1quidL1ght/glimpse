@@ -1,84 +1,154 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import GuestListItem from '@/components/GuestListItem';
-
-interface Customer {
-  id: string;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-  created_at: string;
-  updated_at: string;
-  tags?: string[];
-  totalVisits?: number;
-  lastVisit?: string;
-  favoriteTable?: string;
-  tablePreferences?: string[];
-  foodPreferences?: Array<{value: string, isGolden: boolean}>;
-  winePreferences?: Array<{value: string, isGolden: boolean}>;
-  cocktailPreferences?: Array<{value: string, isGolden: boolean}>;
-  spiritsPreferences?: Array<{value: string, isGolden: boolean}>;
-  allergies?: string[];
-  importantDates?: Array<{event: string, date: string}>;
-  connections?: Array<{name: string, relationship: string}>;
-  visits?: Array<{
-    date: string;
-    party: number;
-    table: string;
-    notes: string;
-    orders: {
-      appetizers: string[];
-      entrees: string[];
-      cocktails: string[];
-      desserts: string[];
-    };
-  }>;
-  notes?: string;
-  importantNotables?: string[];
-}
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface GuestListProps {
-  customers: Customer[];
-  loading: boolean;
-  searchTerm: string;
-  onCustomerSelect: (customer: Customer) => void;
+  customers: any[];
+  onCustomerSelect: (customer: any) => void;
+  isAdmin?: boolean;
+  onCustomerDeleted?: () => void;
 }
 
-const GuestList: React.FC<GuestListProps> = ({ customers, loading, searchTerm, onCustomerSelect }) => {
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+const GuestList: React.FC<GuestListProps> = ({ 
+  customers, 
+  onCustomerSelect, 
+  isAdmin = false,
+  onCustomerDeleted 
+}) => {
+  const [deleteCustomer, setDeleteCustomer] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
+  const { toast } = useToast();
 
-  if (loading) {
+  const handleDeleteCustomer = async () => {
+    if (!deleteCustomer) return;
+
+    setDeleting(true);
+    try {
+      // Delete all related data first (due to foreign key constraints)
+      await supabase.from('customer_tags').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('table_preferences').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('food_preferences').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('wine_preferences').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('cocktail_preferences').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('spirits_preferences').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('allergies').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('important_dates').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('important_notables').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('customer_notes').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('connections').delete().eq('customer_id', deleteCustomer.id);
+      await supabase.from('connections').delete().eq('connected_customer_id', deleteCustomer.id);
+
+      // Delete visits and visit orders
+      const { data: visits } = await supabase
+        .from('visits')
+        .select('id')
+        .eq('customer_id', deleteCustomer.id);
+
+      if (visits) {
+        for (const visit of visits) {
+          await supabase.from('visit_orders').delete().eq('visit_id', visit.id);
+        }
+        await supabase.from('visits').delete().eq('customer_id', deleteCustomer.id);
+      }
+
+      // Finally delete the customer
+      const { error } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', deleteCustomer.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `${deleteCustomer.name} has been deleted successfully`,
+      });
+
+      onCustomerDeleted?.();
+      setDeleteCustomer(null);
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete customer. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (customers.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground text-lg">Loading guests...</p>
-      </div>
-    );
-  }
-
-  if (filteredCustomers.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground text-lg">
-          {searchTerm ? 'No guests found matching your search.' : 'No guests found. Add your first guest!'}
-        </p>
+        <div className="text-muted-foreground">No guests found</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
-      {filteredCustomers.map(customer => (
-        <GuestListItem
-          key={customer.id}
-          customer={customer}
-          onClick={() => onCustomerSelect(customer)}
-        />
-      ))}
-    </div>
+    <>
+      <div className="grid gap-4">
+        {customers.map((customer) => (
+          <div key={customer.id} className="relative group">
+            <GuestListItem
+              customer={customer}
+              onClick={() => onCustomerSelect(customer)}
+            />
+            {isAdmin && (
+              <Button
+                variant="destructive"
+                size="sm"
+                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteCustomer(customer);
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <AlertDialog open={!!deleteCustomer} onOpenChange={() => setDeleteCustomer(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Guest</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{deleteCustomer?.name}</strong>? 
+              This action cannot be undone and will remove all associated data including 
+              preferences, visits, and notes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteCustomer}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? 'Deleting...' : 'Delete Guest'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

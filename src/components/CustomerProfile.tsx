@@ -16,9 +16,15 @@ interface CustomerProfileProps {
   customer: any;
   onBack: () => void;
   allCustomers: any[];
+  isAdmin?: boolean;
 }
 
-const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, allCustomers }) => {
+const CustomerProfile: React.FC<CustomerProfileProps> = ({ 
+  customer, 
+  onBack, 
+  allCustomers,
+  isAdmin = false 
+}) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const handleCustomerSelect = (selectedCustomer: any) => {
@@ -39,13 +45,15 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
             onCustomerSelect={handleCustomerSelect}
             currentCustomer={customer}
           />
-          <Button 
-            onClick={() => setShowEditDialog(true)}
-            className="flex items-center gap-2"
-          >
-            <Edit className="w-4 h-4" />
-            Edit Guest
-          </Button>
+          {isAdmin && (
+            <Button 
+              onClick={() => setShowEditDialog(true)}
+              className="flex items-center gap-2"
+            >
+              <Edit className="w-4 h-4" />
+              Edit Guest
+            </Button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -65,12 +73,14 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
           </div>
         </div>
 
-        <EditGuestDialog
-          open={showEditDialog}
-          onOpenChange={setShowEditDialog}
-          onGuestUpdated={handleGuestUpdated}
-          customer={customer}
-        />
+        {isAdmin && (
+          <EditGuestDialog
+            open={showEditDialog}
+            onOpenChange={setShowEditDialog}
+            onGuestUpdated={handleGuestUpdated}
+            customer={customer}
+          />
+        )}
       </div>
     </div>
   );
