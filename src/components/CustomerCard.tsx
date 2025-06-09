@@ -5,15 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar, User, Phone } from 'lucide-react';
 
 interface Customer {
-  id: string;
+  id: number;
   name: string;
   email: string;
   phone: string;
-  avatar_url: string | null;
+  avatar: string;
+  lastVisit: string;
   totalVisits: number;
   favoriteTable: string;
   foodPreferences: string[];
-  lastVisit: string;
 }
 
 interface CustomerCardProps {
@@ -38,13 +38,11 @@ const CustomerCard: React.FC<CustomerCardProps> = ({ customer, onClick }) => {
         {/* Name and Contact */}
         <div className="space-y-1">
           <h3 className="font-semibold text-lg text-foreground">{customer.name}</h3>
-          {customer.email && <p className="text-sm text-muted-foreground">{customer.email}</p>}
-          {customer.phone && (
-            <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-              <Phone className="w-3 h-3" />
-              <span>{customer.phone}</span>
-            </div>
-          )}
+          <p className="text-sm text-muted-foreground">{customer.email}</p>
+          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+            <Phone className="w-3 h-3" />
+            <span>{customer.phone}</span>
+          </div>
         </div>
 
         {/* Quick Stats */}
@@ -52,11 +50,9 @@ const CustomerCard: React.FC<CustomerCardProps> = ({ customer, onClick }) => {
           <Badge variant="secondary" className="text-xs">
             {customer.totalVisits} visits
           </Badge>
-          {customer.favoriteTable && customer.favoriteTable !== 'Not set' && (
-            <Badge variant="outline" className="text-xs">
-              {customer.favoriteTable}
-            </Badge>
-          )}
+          <Badge variant="outline" className="text-xs">
+            {customer.favoriteTable}
+          </Badge>
         </div>
 
         {/* Last Visit */}
