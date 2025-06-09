@@ -8,11 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { X, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+
 interface AddCustomerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCustomerAdded: () => void;
 }
+
 const AddCustomerDialog: React.FC<AddCustomerDialogProps> = ({
   open,
   onOpenChange,
@@ -173,41 +175,49 @@ const AddCustomerDialog: React.FC<AddCustomerDialogProps> = ({
     spiritsPreferences: 'Spirits Preferences',
     allergies: 'Allergies'
   };
-  return <Dialog open={open} onOpenChange={onOpenChange}>
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Guest</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information */}
+          {/* Basic Information - Labels as placeholders */}
           <div className="space-y-4">
-            <h3 className="font-semibold">Basic Information</h3>
-            
-            <div>
-              <Label htmlFor="name">Name *</Label>
-              <Input id="name" value={formData.name} onChange={e => setFormData(prev => ({
-              ...prev,
-              name: e.target.value
-            }))} required className="px-[10px]" />
-            </div>
+            <Input 
+              placeholder="Name *"
+              value={formData.name} 
+              onChange={e => setFormData(prev => ({
+                ...prev,
+                name: e.target.value
+              }))} 
+              required 
+              className="bg-muted/30 border-muted placeholder:text-muted-foreground/60"
+            />
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={formData.email} onChange={e => setFormData(prev => ({
-                ...prev,
-                email: e.target.value
-              }))} />
-              </div>
+              <Input 
+                placeholder="Email"
+                type="email" 
+                value={formData.email} 
+                onChange={e => setFormData(prev => ({
+                  ...prev,
+                  email: e.target.value
+                }))} 
+                className="bg-muted/30 border-muted placeholder:text-muted-foreground/60"
+              />
 
-              <div>
-                <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" value={formData.phone} onChange={e => setFormData(prev => ({
-                ...prev,
-                phone: e.target.value
-              }))} />
-              </div>
+              <Input 
+                placeholder="Phone"
+                value={formData.phone} 
+                onChange={e => setFormData(prev => ({
+                  ...prev,
+                  phone: e.target.value
+                }))} 
+                className="bg-muted/30 border-muted placeholder:text-muted-foreground/60"
+              />
             </div>
           </div>
 
@@ -217,14 +227,28 @@ const AddCustomerDialog: React.FC<AddCustomerDialogProps> = ({
             
             {/* Preference Tabs */}
             <div className="flex flex-wrap gap-2">
-              {Object.entries(preferenceLabels).map(([key, label]) => <Button key={key} type="button" variant={activeTab === key ? "default" : "outline"} size="sm" onClick={() => setActiveTab(key as keyof typeof formData)}>
+              {Object.entries(preferenceLabels).map(([key, label]) => (
+                <Button 
+                  key={key} 
+                  type="button" 
+                  variant={activeTab === key ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={() => setActiveTab(key as keyof typeof formData)}
+                >
                   {label}
-                </Button>)}
+                </Button>
+              ))}
             </div>
 
             {/* Add Preference Input */}
             <div className="flex gap-2">
-              <Input placeholder={`Add ${preferenceLabels[activeTab as keyof typeof preferenceLabels]?.toLowerCase()}`} value={newPreference} onChange={e => setNewPreference(e.target.value)} onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addPreference())} />
+              <Input 
+                placeholder={`Add ${preferenceLabels[activeTab as keyof typeof preferenceLabels]?.toLowerCase()}`} 
+                value={newPreference} 
+                onChange={e => setNewPreference(e.target.value)} 
+                onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addPreference())} 
+                className="bg-muted/30 border-muted placeholder:text-muted-foreground/60"
+              />
               <Button type="button" onClick={addPreference}>
                 <Plus className="w-4 h-4" />
               </Button>
@@ -232,20 +256,28 @@ const AddCustomerDialog: React.FC<AddCustomerDialogProps> = ({
 
             {/* Display Preferences */}
             <div className="flex flex-wrap gap-2">
-              {Array.isArray(formData[activeTab]) && (formData[activeTab] as string[]).map((item, index) => <Badge key={index} variant="secondary" className="cursor-pointer">
+              {Array.isArray(formData[activeTab]) && (formData[activeTab] as string[]).map((item, index) => (
+                <Badge key={index} variant="secondary" className="cursor-pointer">
                   {item}
                   <X className="w-3 h-3 ml-1" onClick={() => removePreference(index)} />
-                </Badge>)}
+                </Badge>
+              ))}
             </div>
           </div>
 
           {/* Notes */}
           <div>
             <Label htmlFor="notes">Special Notes</Label>
-            <Textarea id="notes" value={formData.notes} onChange={e => setFormData(prev => ({
-            ...prev,
-            notes: e.target.value
-          }))} rows={3} />
+            <Textarea 
+              id="notes" 
+              value={formData.notes} 
+              onChange={e => setFormData(prev => ({
+                ...prev,
+                notes: e.target.value
+              }))} 
+              rows={3} 
+              className="bg-muted/30 border-muted placeholder:text-muted-foreground/60"
+            />
           </div>
 
           {/* Submit Buttons */}
@@ -259,6 +291,8 @@ const AddCustomerDialog: React.FC<AddCustomerDialogProps> = ({
           </div>
         </form>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
+
 export default AddCustomerDialog;
