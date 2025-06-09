@@ -32,6 +32,7 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
         relationship: relationship.trim()
       };
       
+      // Check if connection already exists
       if (!connections.some(conn => conn.name === newConnection.name)) {
         onConnectionsChange([...connections, newConnection]);
         setSelectedCustomer('');
@@ -42,6 +43,13 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
 
   const removeConnection = (index: number) => {
     onConnectionsChange(connections.filter((_, i) => i !== index));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addConnection();
+    }
   };
 
   return (
@@ -55,16 +63,22 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
         <CustomerAutocomplete
           value={selectedCustomer}
           onChange={setSelectedCustomer}
-          placeholder="Select customer..."
+          placeholder="Select guest..."
           excludeCustomerId={excludeCustomerId}
         />
         <Input
           value={relationship}
           onChange={(e) => setRelationship(e.target.value)}
           placeholder="Relationship (e.g., spouse, friend)"
-          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addConnection())}
+          onKeyDown={handleKeyDown}
         />
-        <Button type="button" variant="outline" size="sm" onClick={addConnection}>
+        <Button 
+          type="button" 
+          variant="outline" 
+          size="sm" 
+          onClick={addConnection}
+          disabled={!selectedCustomer.trim() || !relationship.trim()}
+        >
           <Plus className="w-4 h-4" />
         </Button>
       </div>

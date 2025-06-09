@@ -1,6 +1,6 @@
+
 import React, { useState } from 'react';
 import { useCustomerDashboard } from '@/hooks/useCustomerDashboard';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardSearch from '@/components/dashboard/DashboardSearch';
 import GuestList from '@/components/dashboard/GuestList';
 import CustomerProfile from '@/components/CustomerProfile';
