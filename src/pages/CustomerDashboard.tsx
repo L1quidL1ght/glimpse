@@ -1,14 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import Logo from '@/components/Logo';
-import GuestListItem from '@/components/GuestListItem';
 import CustomerProfile from '@/components/CustomerProfile';
 import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardSearch from '@/components/dashboard/DashboardSearch';
+import GuestList from '@/components/dashboard/GuestList';
+import { useCustomerDashboard } from '@/hooks/useCustomerDashboard';
 
 interface Customer {
   id: string;
@@ -50,134 +47,15 @@ const CustomerDashboard = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
-  const fetchCustomers = async () => {
-    try {
-      setLoading(true);
-      
-      const { data: customersData, error: customersError } = await supabase
-        .from('customers')
-        .select(`
-          *,
-          customer_tags (tag_name),
-          table_preferences (preference),
-          food_preferences (preference, is_golden),
-          wine_preferences (preference, is_golden),
-          cocktail_preferences (preference, is_golden),
-          spirits_preferences (preference, is_golden),
-          allergies (allergy),
-          important_dates (event, date),
-          important_notables (notable),
-          customer_notes (note),
-          visits (
-            visit_date,
-            party_size,
-            table_name,
-            notes,
-            visit_orders (category, item)
-          ),
-          connections!connections_customer_id_fkey (
-            relationship,
-            connected_customer:customers!connections_connected_customer_id_fkey (name)
-          )
-        `)
-        .order('name');
-
-      if (customersError) throw customersError;
-
-      const transformedCustomers: Customer[] = customersData.map(customer => ({
-        id: customer.id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
-        avatar_url: customer.avatar_url,
-        created_at: customer.created_at,
-        updated_at: customer.updated_at,
-        tags: customer.customer_tags?.map((tag: any) => tag.tag_name) || [],
-        tablePreferences: customer.table_preferences?.map((pref: any) => pref.preference) || [],
-        foodPreferences: customer.food_preferences?.map((pref: any) => ({
-          value: pref.preference,
-          isGolden: pref.is_golden
-        })) || [],
-        winePreferences: customer.wine_preferences?.map((pref: any) => ({
-          value: pref.preference,
-          isGolden: pref.is_golden
-        })) || [],
-        cocktailPreferences: customer.cocktail_preferences?.map((pref: any) => ({
-          value: pref.preference,
-          isGolden: pref.is_golden
-        })) || [],
-        spiritsPreferences: customer.spirits_preferences?.map((pref: any) => ({
-          value: pref.preference,
-          isGolden: pref.is_golden
-        })) || [],
-        allergies: customer.allergies?.map((allergy: any) => allergy.allergy) || [],
-        importantDates: customer.important_dates?.map((date: any) => ({
-          event: date.event,
-          date: date.date
-        })) || [],
-        importantNotables: customer.important_notables?.map((notable: any) => notable.notable) || [],
-        notes: customer.customer_notes?.[0]?.note || '',
-        connections: customer.connections?.map((conn: any) => ({
-          name: conn.connected_customer?.name || '',
-          relationship: conn.relationship
-        })) || [],
-        visits: customer.visits?.map((visit: any) => {
-          const ordersByCategory = visit.visit_orders?.reduce((acc: any, order: any) => {
-            if (!acc[order.category]) acc[order.category] = [];
-            acc[order.category].push(order.item);
-            return acc;
-          }, {});
-
-          return {
-            date: visit.visit_date,
-            party: visit.party_size,
-            table: visit.table_name || '',
-            notes: visit.notes || '',
-            orders: {
-              appetizers: ordersByCategory?.appetizers || [],
-              entrees: ordersByCategory?.entrees || [],
-              cocktails: ordersByCategory?.cocktails || [],
-              desserts: ordersByCategory?.desserts || []
-            }
-          };
-        }) || [],
-        totalVisits: customer.visits?.length || 0,
-        lastVisit: customer.visits?.[0]?.visit_date
-      }));
-
-      setCustomers(transformedCustomers);
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch customers",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { customers, loading, fetchCustomers, handleGuestAdded } = useCustomerDashboard();
 
   useEffect(() => {
     fetchCustomers();
   }, []);
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
-  const handleGuestAdded = () => {
-    fetchCustomers();
+  const onGuestAdded = () => {
+    handleGuestAdded();
     setShowAddDialog(false);
-    toast({
-      title: "Success",
-      description: "Guest list updated successfully",
-    });
   };
 
   if (selectedCustomer) {
@@ -193,63 +71,24 @@ const CustomerDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Logo />
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon">
-              <Settings className="w-4 h-4" />
-            </Button>
-            <Button 
-              size="icon" 
-              className="bg-primary hover:bg-primary/90"
-              onClick={() => setShowAddDialog(true)}
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+        <DashboardHeader onAddGuest={() => setShowAddDialog(true)} />
+        
+        <DashboardSearch 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Search guests..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-card border-border"
-          />
-        </div>
-
-        {/* Guest List */}
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">Loading guests...</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {filteredCustomers.map(customer => (
-              <GuestListItem
-                key={customer.id}
-                customer={customer}
-                onClick={() => setSelectedCustomer(customer)}
-              />
-            ))}
-          </div>
-        )}
-
-        {!loading && filteredCustomers.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
-              {searchTerm ? 'No guests found matching your search.' : 'No guests found. Add your first guest!'}
-            </p>
-          </div>
-        )}
+        <GuestList
+          customers={customers}
+          loading={loading}
+          searchTerm={searchTerm}
+          onCustomerSelect={setSelectedCustomer}
+        />
 
         <AddGuestDialog
           open={showAddDialog}
           onOpenChange={setShowAddDialog}
-          onGuestAdded={handleGuestAdded}
+          onGuestAdded={onGuestAdded}
         />
       </div>
     </div>
