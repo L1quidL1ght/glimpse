@@ -1,21 +1,14 @@
-
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  MapPin, 
-  UtensilsCrossed,
-  Wine, 
-  AlertTriangle
-} from 'lucide-react';
-
+import { MapPin, UtensilsCrossed, Wine, AlertTriangle } from 'lucide-react';
 interface PreferencesGridProps {
   customer: any;
 }
-
-const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+const PreferencesGrid: React.FC<PreferencesGridProps> = ({
+  customer
+}) => {
+  return <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Table Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
@@ -23,61 +16,59 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
           <h3 className="font-semibold text-foreground">Table Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          {customer.tablePreferences?.map((pref: string, index: number) => (
-            <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{pref}</Badge>
-          ))}
+          {customer.tablePreferences?.map((pref: string, index: number) => <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{pref}</Badge>)}
         </div>
       </Card>
 
       {/* Food Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <UtensilsCrossed className="w-5 h-5" style={{ color: 'hsl(var(--success))' }} />
+          <UtensilsCrossed className="w-5 h-5" style={{
+          color: 'hsl(var(--success))'
+        }} />
           <h3 className="font-semibold text-foreground">Food Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          {customer.foodPreferences.map((pref: string, index: number) => (
-            <Badge key={index} variant="secondary" className="bg-muted/50">{pref}</Badge>
-          ))}
+          {customer.foodPreferences.map((pref: string, index: number) => <Badge key={index} variant="secondary" className="bg-muted/50">{pref}</Badge>)}
         </div>
       </Card>
 
       {/* Wine Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <Wine className="w-5 h-5" style={{ color: 'hsl(var(--info))' }} />
+          <Wine className="w-5 h-5" style={{
+          color: 'hsl(var(--info))'
+        }} />
           <h3 className="font-semibold text-foreground">Wine Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          {customer.winePreferences.map((wine: string, index: number) => (
-            <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{wine}</Badge>
-          ))}
+          {customer.winePreferences.map((wine: string, index: number) => <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{wine}</Badge>)}
         </div>
       </Card>
 
       {/* Spirits Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <Wine className="w-5 h-5" style={{ color: 'hsl(var(--info))' }} />
+          <Wine className="w-5 h-5" style={{
+          color: 'hsl(var(--info))'
+        }} />
           <h3 className="font-semibold text-foreground">Spirits Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          {customer.spiritsPreferences?.map((spirit: string, index: number) => (
-            <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{spirit}</Badge>
-          ))}
+          {customer.spiritsPreferences?.map((spirit: string, index: number) => <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{spirit}</Badge>)}
         </div>
       </Card>
 
       {/* Cocktail Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <Wine className="w-5 h-5" style={{ color: 'hsl(var(--info))' }} />
+          <Wine className="w-5 h-5" style={{
+          color: 'hsl(var(--info))'
+        }} />
           <h3 className="font-semibold text-foreground">Cocktail Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          {customer.cocktailPreferences.map((cocktail: string, index: number) => (
-            <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{cocktail}</Badge>
-          ))}
+          {customer.cocktailPreferences.map((cocktail: string, index: number) => <Badge key={index} variant="outline" className="border-muted bg-slate-700 rounded-bl-sm ">{cocktail}</Badge>)}
         </div>
       </Card>
 
@@ -88,13 +79,9 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
           <h3 className="font-semibold text-foreground">Allergies</h3>
         </div>
         <div className="flex flex-wrap gap-2">
-          {customer.allergies.map((allergy: string, index: number) => (
-            <Badge key={index} variant="destructive">{allergy}</Badge>
-          ))}
+          {customer.allergies.map((allergy: string, index: number) => <Badge key={index} variant="destructive">{allergy}</Badge>)}
         </div>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default PreferencesGrid;
