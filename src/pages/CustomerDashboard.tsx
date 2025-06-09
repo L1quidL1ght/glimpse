@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,116 +7,124 @@ import Logo from '@/components/Logo';
 import GuestListItem from '@/components/GuestListItem';
 import CustomerProfile from '@/components/CustomerProfile';
 import AddGuestDialog from '@/components/AddGuestDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Customer {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  updated_at: string;
+  tags?: string[];
+  totalVisits?: number;
+  lastVisit?: string;
+  favoriteTable?: string;
+  tablePreferences?: string[];
+  foodPreferences?: Array<{value: string, isGolden: boolean}>;
+  winePreferences?: Array<{value: string, isGolden: boolean}>;
+  cocktailPreferences?: Array<{value: string, isGolden: boolean}>;
+  spiritsPreferences?: Array<{value: string, isGolden: boolean}>;
+  allergies?: string[];
+  importantDates?: Array<{event: string, date: string}>;
+  connections?: Array<{name: string, relationship: string}>;
+  visits?: Array<{
+    date: string;
+    party: number;
+    table: string;
+    notes: string;
+    orders: {
+      appetizers: string[];
+      entrees: string[];
+      cocktails: string[];
+      desserts: string[];
+    };
+  }>;
+  notes?: string;
+  importantNotables?: string[];
+}
 
 const CustomerDashboard = () => {
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Mock customer data
-  const customers = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      phone: '(555) 123-4567',
-      avatar: '/placeholder.svg',
-      lastVisit: '2024-06-05',
-      tags: ['VIP', '333 Club'],
-      totalVisits: 12,
-      favoriteTable: 'Table 7',
-      tablePreferences: ['Window seating', 'Quiet area', 'Corner booth'],
-      foodPreferences: ['Vegetarian', 'Gluten-free'],
-      winePreferences: ['Pinot Noir', 'Sauvignon Blanc'],
-      cocktailPreferences: ['Moscow Mule', 'Aperol Spritz'],
-      spiritsPreferences: ['Vodka', 'Gin', 'Light rum'],
-      allergies: ['Shellfish', 'Nuts'],
-      importantDates: [
-        { date: '2024-08-15', event: 'Anniversary' },
-        { date: '2024-12-03', event: 'Birthday' }
-      ],
-      connections: [
-        { id: 2, name: 'Michael Johnson', relationship: 'Husband' }
-      ],
-      visits: [
-        { 
-          date: '2024-06-05', 
-          party: 2, 
-          table: 'Table 7', 
-          notes: 'Celebrated anniversary',
-          orders: {
-            appetizers: ['Truffle Arancini', 'Burrata'],
-            entrees: ['Ribeye Steak', 'Pan-Seared Halibut'],
-            cocktails: ['Moscow Mule', 'Aperol Spritz'],
-            desserts: ['Chocolate Tart', 'Tiramisu']
-          }
-        },
-        { 
-          date: '2024-05-20', 
-          party: 4, 
-          table: 'Table 12', 
-          notes: 'Business dinner',
-          orders: {
-            appetizers: ['Oysters', 'Charcuterie'],
-            entrees: ['Lamb Chops', 'Salmon', 'Duck Breast', 'Vegetarian Risotto'],
-            cocktails: ['Old Fashioned', 'Negroni'],
-            desserts: ['Cheesecake']
-          }
-        }
-      ],
-      notes: 'Prefers window seating. Always orders dessert. Very particular about wine pairings and likes to try new cocktails.',
-      importantNotables: ['VIP client', 'Wine connoisseur', 'Prefers romantic atmosphere', 'Always celebrates special occasions here']
-    },
-    {
-      id: 2,
-      name: 'Michael Johnson',
-      email: 'michael.johnson@email.com',
-      phone: '(555) 123-4568',
-      avatar: '/placeholder.svg',
-      lastVisit: '2024-06-05',
-      tags: ['VIP'],
-      totalVisits: 12,
-      favoriteTable: 'Table 7',
-      tablePreferences: ['Bar seating', 'High-top tables'],
-      foodPreferences: ['Steak', 'Seafood'],
-      winePreferences: ['Cabernet Sauvignon', 'Malbec'],
-      cocktailPreferences: ['Old Fashioned', 'Whiskey Sour'],
-      spiritsPreferences: ['Whiskey', 'Bourbon', 'Scotch'],
-      allergies: ['None'],
-      importantDates: [
-        { date: '2024-08-15', event: 'Anniversary' }
-      ],
-      connections: [
-        { id: 1, name: 'Sarah Johnson', relationship: 'Wife' }
-      ],
-      visits: [
-        { 
-          date: '2024-06-05', 
-          party: 2, 
-          table: 'Table 7', 
-          notes: 'Celebrated anniversary',
-          orders: {
-            appetizers: ['Truffle Arancini'],
-            entrees: ['Ribeye Steak'],
-            cocktails: ['Old Fashioned'],
-            desserts: ['Chocolate Tart']
-          }
-        }
-      ],
-      notes: 'Enjoys wine pairings. Regular customer. Often orders multiple courses and likes to discuss wine selections with sommelier.',
-      importantNotables: ['Business professional', 'Whiskey enthusiast', 'Enjoys detailed wine discussions', 'Generous tipper']
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch customers with their tags
+      const { data: customersData, error: customersError } = await supabase
+        .from('customers')
+        .select(`
+          *,
+          customer_tags (tag_name)
+        `)
+        .order('name');
+
+      if (customersError) throw customersError;
+
+      // Transform the data to match our Customer interface
+      const transformedCustomers: Customer[] = customersData.map(customer => ({
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        avatar_url: customer.avatar_url,
+        created_at: customer.created_at,
+        updated_at: customer.updated_at,
+        tags: customer.customer_tags?.map((tag: any) => tag.tag_name) || [],
+        totalVisits: 0, // Will be calculated from visits table
+        lastVisit: undefined, // Will be calculated from visits table
+        favoriteTable: undefined,
+        tablePreferences: [],
+        foodPreferences: [],
+        winePreferences: [],
+        cocktailPreferences: [],
+        spiritsPreferences: [],
+        allergies: [],
+        importantDates: [],
+        connections: [],
+        visits: [],
+        notes: '',
+        importantNotables: []
+      }));
+
+      setCustomers(transformedCustomers);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch customers",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
 
   const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (customer.email && customer.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleGuestAdded = () => {
-    // In a real app, you would refresh the customer list here
-    console.log('Guest added/updated - refresh list');
+    // Refresh the customer list when a guest is added/updated
+    fetchCustomers();
     setShowAddDialog(false);
+    toast({
+      title: "Success",
+      description: "Guest list updated successfully",
+    });
   };
 
   if (selectedCustomer) {
@@ -160,19 +169,27 @@ const CustomerDashboard = () => {
         </div>
 
         {/* Guest List */}
-        <div className="space-y-2">
-          {filteredCustomers.map(customer => (
-            <GuestListItem
-              key={customer.id}
-              customer={customer}
-              onClick={() => setSelectedCustomer(customer)}
-            />
-          ))}
-        </div>
-
-        {filteredCustomers.length === 0 && (
+        {loading ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No guests found matching your search.</p>
+            <p className="text-muted-foreground text-lg">Loading guests...</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filteredCustomers.map(customer => (
+              <GuestListItem
+                key={customer.id}
+                customer={customer}
+                onClick={() => setSelectedCustomer(customer)}
+              />
+            ))}
+          </div>
+        )}
+
+        {!loading && filteredCustomers.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              {searchTerm ? 'No guests found matching your search.' : 'No guests found. Add your first guest!'}
+            </p>
           </div>
         )}
 

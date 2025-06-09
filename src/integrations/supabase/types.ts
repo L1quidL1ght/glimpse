@@ -141,6 +141,35 @@ export type Database = {
           },
         ]
       }
+      customer_tags: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          tag_name: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          tag_name: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          tag_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_tags_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           avatar_url: string | null

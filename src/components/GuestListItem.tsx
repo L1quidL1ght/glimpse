@@ -2,18 +2,18 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
 
 interface Customer {
-  id: number;
+  id: string;
   name: string;
-  email: string;
-  phone: string;
-  avatar: string;
-  lastVisit: string;
-  totalVisits: number;
-  favoriteTable: string;
-  foodPreferences: string[];
+  email: string | null;
+  phone: string | null;
+  avatar_url: string | null;
+  tags?: string[];
+  totalVisits?: number;
+  lastVisit?: string;
 }
 
 interface GuestListItemProps {
@@ -22,6 +22,28 @@ interface GuestListItemProps {
 }
 
 const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
+  const getTagVariant = (tag: string) => {
+    switch (tag) {
+      case 'VIP':
+        return 'default';
+      case '333 Club':
+        return 'secondary';
+      case 'Regular':
+        return 'outline';
+      default:
+        return 'outline';
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <Card 
       className="p-4 cursor-pointer hover:bg-accent/50 transition-all duration-200 bg-card border border-border group"
@@ -29,20 +51,48 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
     >
       <div className="flex items-center gap-4">
         {/* Profile Picture */}
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center flex-shrink-0">
-          <User className="w-6 h-6 text-primary" />
-        </div>
+        <Avatar className="w-12 h-12">
+          {customer.avatar_url ? (
+            <AvatarImage 
+              src={customer.avatar_url} 
+              alt={customer.name}
+              className="object-cover"
+            />
+          ) : null}
+          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/40 text-primary font-medium">
+            {getInitials(customer.name)}
+          </AvatarFallback>
+        </Avatar>
 
-        {/* Name and Tag */}
+        {/* Customer Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors">
-            {customer.name}
-          </h3>
-          <div className="flex items-center gap-2 mt-1">
-            <Badge variant="secondary" className="text-xs">
-              {customer.totalVisits} visits
-            </Badge>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors">
+              {customer.name}
+            </h3>
+            {customer.tags && customer.tags.map((tag, index) => (
+              <Badge key={index} variant={getTagVariant(tag)} className="text-xs">
+                {tag}
+              </Badge>
+            ))}
           </div>
+          
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            {customer.email && (
+              <span className="truncate">{customer.email}</span>
+            )}
+            {customer.phone && (
+              <span>{customer.phone}</span>
+            )}
+          </div>
+          
+          {customer.totalVisits !== undefined && (
+            <div className="mt-1">
+              <Badge variant="secondary" className="text-xs">
+                {customer.totalVisits} visits
+              </Badge>
+            </div>
+          )}
         </div>
 
         {/* Arrow indicator */}
