@@ -62,8 +62,6 @@ const ExtendedGuestFormFields: React.FC<ExtendedGuestFormFieldsProps> = ({
           <PreferencesSections
             formData={formData}
             updateField={updateField}
-            preferences={preferences}
-            onPreferencesChange={onPreferencesChange}
           />
         </div>
       </div>

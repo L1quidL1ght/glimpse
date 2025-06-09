@@ -2,16 +2,14 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, Calendar, Crown, Star } from 'lucide-react';
+import { User, Calendar } from 'lucide-react';
+import { TagIcon } from '@/components/ui/tag-icon';
 
 interface ProfileCardProps {
   customer: any;
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ customer }) => {
-  const has333Club = customer.tags?.includes('333 Club');
-  const hasVIP = customer.tags?.includes('VIP');
-
   return (
     <Card className="p-6 bg-card border border-border">
       <div className="flex flex-col items-center text-center space-y-4">
@@ -24,8 +22,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ customer }) => {
         <div className="space-y-2">
           <div className="flex items-center gap-2 justify-center">
             <h2 className="text-xl font-bold text-foreground">{customer.name}</h2>
-            {has333Club && <Crown className="w-5 h-5" style={{ color: 'gold' }} />}
-            {hasVIP && <Star className="w-5 h-5" style={{ color: 'gold' }} />}
+            {/* Tag Icons beside name */}
+            <div className="flex items-center gap-1">
+              {customer.tags && customer.tags.slice(0, 3).map((tag: string, index: number) => (
+                <TagIcon key={index} tagName={tag} className="w-5 h-5" />
+              ))}
+            </div>
           </div>
           <div className="space-y-1 text-sm text-muted-foreground">
             <div>{customer.email}</div>
@@ -35,8 +37,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ customer }) => {
 
         {/* Tags */}
         <div className="flex gap-2 flex-wrap justify-center">
-          <Badge variant="secondary" className="bg-accent text-accent-foreground">VIP</Badge>
-          <Badge variant="outline" className="border-primary/30 text-primary">Regular</Badge>
+          {customer.tags && customer.tags.map((tag: string, index: number) => (
+            <Badge key={index} variant="secondary" className="bg-accent text-accent-foreground flex items-center gap-1">
+              <TagIcon tagName={tag} className="w-3 h-3" />
+              {tag}
+            </Badge>
+          ))}
         </div>
 
         {/* Last Visit */}

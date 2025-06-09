@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Users, User, Crown, Star } from 'lucide-react';
+import { Users, User } from 'lucide-react';
+import { TagIcon } from '@/components/ui/tag-icon';
 
 interface CompactConnectionsProps {
   connections: any[];
@@ -23,8 +24,6 @@ const CompactConnections: React.FC<CompactConnectionsProps> = ({ connections, al
       <div className="space-y-2">
         {connections.map((connection: any, index: number) => {
           const tags = getCustomerTags(connection.name);
-          const has333Club = tags.includes('333 Club');
-          const hasVIP = tags.includes('VIP');
           
           return (
             <div key={index} className="flex items-center gap-2 p-2 bg-muted rounded">
@@ -34,8 +33,12 @@ const CompactConnections: React.FC<CompactConnectionsProps> = ({ connections, al
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1">
                   <span className="text-sm font-medium text-foreground truncate">{connection.name}</span>
-                  {has333Club && <Crown className="w-3 h-3" style={{ color: 'gold' }} />}
-                  {hasVIP && <Star className="w-3 h-3" style={{ color: 'gold' }} />}
+                  {/* Tag Icons beside connection name */}
+                  <div className="flex items-center gap-1">
+                    {tags.slice(0, 2).map((tag: string, tagIndex: number) => (
+                      <TagIcon key={tagIndex} tagName={tag} className="w-3 h-3" />
+                    ))}
+                  </div>
                 </div>
                 <div className="text-xs text-muted-foreground">{connection.relationship}</div>
               </div>

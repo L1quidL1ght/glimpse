@@ -3,7 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { User } from 'lucide-react';
+import { TagIcon } from '@/components/ui/tag-icon';
 
 interface Customer {
   id: string;
@@ -70,11 +70,15 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
             <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors">
               {customer.name}
             </h3>
-            {customer.tags && customer.tags.map((tag, index) => (
-              <Badge key={index} variant={getTagVariant(tag)} className="text-xs">
-                {tag}
-              </Badge>
-            ))}
+            {/* Tag Icons beside name */}
+            <div className="flex items-center gap-1">
+              {customer.tags && customer.tags.slice(0, 3).map((tag, index) => (
+                <TagIcon key={index} tagName={tag} className="w-4 h-4" />
+              ))}
+              {customer.tags && customer.tags.length > 3 && (
+                <span className="text-xs text-muted-foreground">+{customer.tags.length - 3}</span>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -86,13 +90,20 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
             )}
           </div>
           
-          {customer.totalVisits !== undefined && (
-            <div className="mt-1">
+          {/* Tag badges */}
+          <div className="flex items-center gap-2 mt-1">
+            {customer.tags && customer.tags.map((tag, index) => (
+              <Badge key={index} variant={getTagVariant(tag)} className="text-xs flex items-center gap-1">
+                <TagIcon tagName={tag} className="w-3 h-3" />
+                {tag}
+              </Badge>
+            ))}
+            {customer.totalVisits !== undefined && (
               <Badge variant="secondary" className="text-xs">
                 {customer.totalVisits} visits
               </Badge>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Arrow indicator */}

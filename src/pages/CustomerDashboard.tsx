@@ -154,6 +154,8 @@ const CustomerDashboard = () => {
           <GuestList
             customers={customers}
             onCustomerSelect={handleCustomerSelect}
+            isAdmin={isAdmin}
+            onCustomerDeleted={refetch}
           />
         )}
 

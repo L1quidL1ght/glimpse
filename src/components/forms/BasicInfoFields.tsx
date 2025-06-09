@@ -2,6 +2,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { GuestFormData } from '@/hooks/useGuestForm';
+import { formatPhoneNumber } from '@/utils/phoneUtils';
 
 interface BasicInfoFieldsProps {
   formData: GuestFormData;
@@ -15,6 +16,11 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
   existingPhoneNumbers = [] 
 }) => {
   const phoneExists = formData.phone && existingPhoneNumbers.includes(formData.phone);
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    updateField('phone', formatted);
+  };
 
   return (
     <div className="space-y-4">
@@ -44,7 +50,7 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
         <Input
           type="tel"
           value={formData.phone}
-          onChange={(e) => updateField('phone', e.target.value)}
+          onChange={handlePhoneChange}
           placeholder="(555) 123-4567"
           className={phoneExists ? 'border-destructive' : ''}
         />
