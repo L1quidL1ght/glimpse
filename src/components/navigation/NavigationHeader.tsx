@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Users, LogOut, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import Logo from '@/components/Logo';
 
 interface NavigationHeaderProps {
   onBack?: () => void;
@@ -64,9 +64,7 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
             <ArrowLeft className="w-4 h-4" />
           </Button>
         )}
-        {title && (
-          <h1 className="text-xl font-semibold text-foreground">{title}</h1>
-        )}
+        <Logo />
       </div>
       
       <div className="flex items-center gap-2">

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useCustomerDashboard } from '@/hooks/useCustomerDashboard';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -97,7 +96,6 @@ const CustomerDashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6">
         <NavigationHeader 
-          title="Guest Directory" 
           onAddGuest={() => setShowAddDialog(true)}
         />
         
