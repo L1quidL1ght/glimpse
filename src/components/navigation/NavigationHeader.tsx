@@ -1,21 +1,22 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, LogOut } from 'lucide-react';
+import { ArrowLeft, Users, LogOut, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import Logo from '@/components/Logo';
 
 interface NavigationHeaderProps {
   onBack?: () => void;
   showBackButton?: boolean;
   title?: string;
+  onAddGuest?: () => void;
 }
 
 const NavigationHeader: React.FC<NavigationHeaderProps> = ({ 
   onBack, 
   showBackButton = false,
-  title 
+  title,
+  onAddGuest
 }) => {
   const { signOut } = useAuth();
   const { toast } = useToast();
@@ -63,13 +64,21 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
             <ArrowLeft className="w-4 h-4" />
           </Button>
         )}
-        <Logo />
         {title && (
           <h1 className="text-xl font-semibold text-foreground">{title}</h1>
         )}
       </div>
       
       <div className="flex items-center gap-2">
+        {onAddGuest && (
+          <Button
+            onClick={onAddGuest}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <UserPlus className="w-4 h-4" />
+            Add Guest
+          </Button>
+        )}
         <Button
           variant="outline"
           size="sm"

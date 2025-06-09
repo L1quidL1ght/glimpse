@@ -96,11 +96,12 @@ const CustomerDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6">
-        <NavigationHeader title="Guest Directory" />
+        <NavigationHeader 
+          title="Guest Directory" 
+          onAddGuest={() => setShowAddDialog(true)}
+        />
         
         <div className="flex items-center justify-between mb-6">
-          <DashboardHeader onAddGuest={() => setShowAddDialog(true)} />
-          
           {/* Admin Controls */}
           <div className="flex items-center gap-2">
             {isAdmin ? (
