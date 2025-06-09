@@ -293,6 +293,33 @@ export type Database = {
           },
         ]
       }
+      preference_options: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          preference_text: string
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          preference_text: string
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          preference_text?: string
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
       spirits_preferences: {
         Row: {
           created_at: string
@@ -461,7 +488,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      upsert_preference_option: {
+        Args: { p_category: string; p_preference_text: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

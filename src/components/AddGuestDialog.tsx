@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +15,12 @@ interface AddGuestDialogProps {
   onOpenChange: (open: boolean) => void;
   guest?: any;
   onGuestAdded?: () => void;
+}
+
+interface PreferenceOption {
+  id: string;
+  preference_text: string;
+  usage_count: number;
 }
 
 const AddGuestDialog: React.FC<AddGuestDialogProps> = ({ 
@@ -81,15 +86,79 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
   const [newConnectionRelationship, setNewConnectionRelationship] = useState('');
   const [newNotable, setNewNotable] = useState('');
 
-  const addPreference = (
+  // Autocomplete states
+  const [tableOptions, setTableOptions] = useState<PreferenceOption[]>([]);
+  const [foodOptions, setFoodOptions] = useState<PreferenceOption[]>([]);
+  const [wineOptions, setWineOptions] = useState<PreferenceOption[]>([]);
+  const [spiritsOptions, setSpiritsOptions] = useState<PreferenceOption[]>([]);
+  const [cocktailOptions, setCocktailOptions] = useState<PreferenceOption[]>([]);
+
+  // Show suggestion states
+  const [showTableSuggestions, setShowTableSuggestions] = useState(false);
+  const [showFoodSuggestions, setShowFoodSuggestions] = useState(false);
+  const [showWineSuggestions, setShowWineSuggestions] = useState(false);
+  const [showSpiritsSuggestions, setShowSpiritsSuggestions] = useState(false);
+  const [showCocktailSuggestions, setShowCocktailSuggestions] = useState(false);
+
+  // Fetch preference options when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetchPreferenceOptions();
+    }
+  }, [open]);
+
+  const fetchPreferenceOptions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('preference_options')
+        .select('*')
+        .order('usage_count', { ascending: false });
+
+      if (error) throw error;
+
+      // Group by category
+      const categorizedOptions = data.reduce((acc: any, option) => {
+        if (!acc[option.category]) {
+          acc[option.category] = [];
+        }
+        acc[option.category].push(option);
+        return acc;
+      }, {});
+
+      setTableOptions(categorizedOptions.table || []);
+      setFoodOptions(categorizedOptions.food || []);
+      setWineOptions(categorizedOptions.wine || []);
+      setSpiritsOptions(categorizedOptions.spirits || []);
+      setCocktailOptions(categorizedOptions.cocktail || []);
+    } catch (error) {
+      console.error('Error fetching preference options:', error);
+    }
+  };
+
+  const savePreferenceOption = async (category: string, preference: string) => {
+    try {
+      await supabase.rpc('upsert_preference_option', {
+        p_category: category,
+        p_preference_text: preference
+      });
+    } catch (error) {
+      console.error('Error saving preference option:', error);
+    }
+  };
+
+  const addPreference = async (
     currentPrefs: Array<{value: string, isGolden: boolean}>, 
     setPrefs: React.Dispatch<React.SetStateAction<Array<{value: string, isGolden: boolean}>>>,
     newValue: string,
-    setNewValue: React.Dispatch<React.SetStateAction<string>>
+    setNewValue: React.Dispatch<React.SetStateAction<string>>,
+    category: string
   ) => {
     if (newValue.trim()) {
       setPrefs([...currentPrefs, { value: newValue.trim(), isGolden: false }]);
+      await savePreferenceOption(category, newValue.trim());
       setNewValue('');
+      // Refresh options to show updated usage count
+      fetchPreferenceOptions();
     }
   };
 
@@ -156,6 +225,24 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
 
   const removeConnection = (index: number) => {
     setConnections(connections.filter((_, i) => i !== index));
+  };
+
+  const selectSuggestion = async (
+    suggestion: string,
+    currentPrefs: Array<{value: string, isGolden: boolean}>,
+    setPrefs: React.Dispatch<React.SetStateAction<Array<{value: string, isGolden: boolean}>>>,
+    setNewValue: React.Dispatch<React.SetStateAction<string>>,
+    setShowSuggestions: React.Dispatch<React.SetStateAction<boolean>>,
+    category: string
+  ) => {
+    // Check if preference already exists
+    if (!currentPrefs.some(pref => pref.value === suggestion)) {
+      setPrefs([...currentPrefs, { value: suggestion, isGolden: false }]);
+      await savePreferenceOption(category, suggestion);
+      fetchPreferenceOptions();
+    }
+    setNewValue('');
+    setShowSuggestions(false);
   };
 
   const handleSubmit = async () => {
@@ -360,56 +447,89 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
     newValue, 
     setNewValue, 
     placeholder, 
-    icon: Icon 
-  }: any) => (
-    <Card className="p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Icon className="w-4 h-4 text-primary" />
-        <h4 className="font-medium text-sm">{placeholder}</h4>
-      </div>
-      <div className="flex flex-wrap gap-2 mb-3">
-        {preferences.map((pref: any, index: number) => (
-          <div key={index} className="flex items-center gap-1">
-            <Badge 
-              variant="outline" 
-              className={`text-xs ${pref.isGolden ? 'border-yellow-400 bg-yellow-50' : ''}`}
+    icon: Icon,
+    category,
+    options,
+    showSuggestions,
+    setShowSuggestions 
+  }: any) => {
+    const filteredOptions = options.filter((option: PreferenceOption) =>
+      option.preference_text.toLowerCase().includes(newValue.toLowerCase()) &&
+      !preferences.some((pref: any) => pref.value === option.preference_text)
+    );
+
+    return (
+      <Card className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Icon className="w-4 h-4 text-primary" />
+          <h4 className="font-medium text-sm">{placeholder}</h4>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-3">
+          {preferences.map((pref: any, index: number) => (
+            <div key={index} className="flex items-center gap-1">
+              <Badge 
+                variant="outline" 
+                className={`text-xs ${pref.isGolden ? 'border-yellow-400 bg-yellow-50' : ''}`}
+              >
+                {pref.value}
+                <button
+                  onClick={() => toggleGolden(preferences, setPreferences, index)}
+                  className="ml-1 hover:text-yellow-500"
+                >
+                  <Star 
+                    className={`w-3 h-3 ${pref.isGolden ? 'fill-yellow-400 text-yellow-400' : ''}`} 
+                  />
+                </button>
+                <button
+                  onClick={() => removePreference(preferences, setPreferences, index)}
+                  className="ml-1 hover:text-red-500"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </Badge>
+            </div>
+          ))}
+        </div>
+        <div className="relative">
+          <div className="flex gap-2">
+            <Input
+              placeholder={`Add ${placeholder.toLowerCase()}`}
+              value={newValue}
+              onChange={(e) => {
+                setNewValue(e.target.value);
+                setShowSuggestions(e.target.value.length > 0);
+              }}
+              onKeyPress={(e) => e.key === 'Enter' && addPreference(preferences, setPreferences, newValue, setNewValue, category)}
+              onFocus={() => setShowSuggestions(newValue.length > 0)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              className="text-sm"
+            />
+            <Button
+              size="sm"
+              onClick={() => addPreference(preferences, setPreferences, newValue, setNewValue, category)}
             >
-              {pref.value}
-              <button
-                onClick={() => toggleGolden(preferences, setPreferences, index)}
-                className="ml-1 hover:text-yellow-500"
-              >
-                <Star 
-                  className={`w-3 h-3 ${pref.isGolden ? 'fill-yellow-400 text-yellow-400' : ''}`} 
-                />
-              </button>
-              <button
-                onClick={() => removePreference(preferences, setPreferences, index)}
-                className="ml-1 hover:text-red-500"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </Badge>
+              <Plus className="w-4 h-4" />
+            </Button>
           </div>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <Input
-          placeholder={`Add ${placeholder.toLowerCase()}`}
-          value={newValue}
-          onChange={(e) => setNewValue(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && addPreference(preferences, setPreferences, newValue, setNewValue)}
-          className="text-sm"
-        />
-        <Button
-          size="sm"
-          onClick={() => addPreference(preferences, setPreferences, newValue, setNewValue)}
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
-      </div>
-    </Card>
-  );
+          
+          {showSuggestions && filteredOptions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 z-50 bg-background border border-border rounded-md shadow-lg mt-1 max-h-40 overflow-y-auto">
+              {filteredOptions.slice(0, 5).map((option: PreferenceOption) => (
+                <button
+                  key={option.id}
+                  className="w-full text-left px-3 py-2 hover:bg-accent text-sm flex justify-between items-center"
+                  onMouseDown={() => selectSuggestion(option.preference_text, preferences, setPreferences, setNewValue, setShowSuggestions, category)}
+                >
+                  <span>{option.preference_text}</span>
+                  <Badge variant="secondary" className="text-xs">{option.usage_count}</Badge>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </Card>
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -458,6 +578,10 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
                   setNewValue={setNewTablePref}
                   placeholder="Table Preferences"
                   icon={MapPin}
+                  category="table"
+                  options={tableOptions}
+                  showSuggestions={showTableSuggestions}
+                  setShowSuggestions={setShowTableSuggestions}
                 />
 
                 <PreferenceInput
@@ -467,6 +591,10 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
                   setNewValue={setNewFoodPref}
                   placeholder="Food Preferences"
                   icon={UtensilsCrossed}
+                  category="food"
+                  options={foodOptions}
+                  showSuggestions={showFoodSuggestions}
+                  setShowSuggestions={setShowFoodSuggestions}
                 />
 
                 <PreferenceInput
@@ -476,6 +604,10 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
                   setNewValue={setNewWinePref}
                   placeholder="Wine Preferences"
                   icon={Wine}
+                  category="wine"
+                  options={wineOptions}
+                  showSuggestions={showWineSuggestions}
+                  setShowSuggestions={setShowWineSuggestions}
                 />
 
                 <PreferenceInput
@@ -485,6 +617,10 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
                   setNewValue={setNewSpiritPref}
                   placeholder="Spirits Preferences"
                   icon={Wine}
+                  category="spirits"
+                  options={spiritsOptions}
+                  showSuggestions={showSpiritsSuggestions}
+                  setShowSuggestions={setShowSpiritsSuggestions}
                 />
 
                 <PreferenceInput
@@ -494,6 +630,10 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
                   setNewValue={setNewCocktailPref}
                   placeholder="Cocktail Preferences"
                   icon={Wine}
+                  category="cocktail"
+                  options={cocktailOptions}
+                  showSuggestions={showCocktailSuggestions}
+                  setShowSuggestions={setShowCocktailSuggestions}
                 />
 
                 <Card className="p-4">
