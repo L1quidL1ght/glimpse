@@ -9,21 +9,14 @@ import NotesSection from './NotesSection';
 interface PreferencesSectionsProps {
   formData: GuestFormData;
   updateField: <K extends keyof GuestFormData>(field: K, value: GuestFormData[K]) => void;
-  preferences: {
-    food: string[];
-    wine: string[];
-    cocktail: string[];
-    spirits: string[];
-  };
-  onPreferencesChange: (category: string, preferences: string[]) => void;
 }
 
 const PreferencesSections: React.FC<PreferencesSectionsProps> = ({ 
   formData, 
-  updateField, 
-  preferences, 
-  onPreferencesChange 
+  updateField
 }) => {
+  console.log('PreferencesSections formData:', formData);
+  
   return (
     <div className="space-y-6">
       <PreferencesInputsSection

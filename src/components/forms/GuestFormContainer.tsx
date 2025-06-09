@@ -24,18 +24,7 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
   const { formData, updateField, resetForm } = useGuestForm(initialData);
   const { submitForm, isSubmitting } = useGuestFormSubmission();
 
-  // Dummy preferences state for compatibility
-  const preferences = {
-    food: [],
-    wine: [],
-    cocktail: [],
-    spirits: []
-  };
-
-  const handlePreferencesChange = (category: string, newPreferences: string[]) => {
-    // This is a dummy function for compatibility - preferences are handled directly in the form
-    console.log('Preferences changed:', category, newPreferences);
-  };
+  console.log('GuestFormContainer formData:', formData);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,8 +67,6 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
       <PreferencesSections 
         formData={formData} 
         updateField={updateField}
-        preferences={preferences}
-        onPreferencesChange={handlePreferencesChange}
       />
       
       <div className="flex gap-2 pt-4">
