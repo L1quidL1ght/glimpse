@@ -6,6 +6,7 @@ import ConnectionsList from '@/components/profile/ConnectionsList';
 import PreferencesGrid from '@/components/profile/PreferencesGrid';
 import SpecialNotes from '@/components/profile/SpecialNotes';
 import ImportantDates from '@/components/profile/ImportantDates';
+import ImportantNotables from '@/components/profile/ImportantNotables';
 import VisitHistory from '@/components/profile/VisitHistory';
 
 interface CustomerProfileProps {
@@ -21,8 +22,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
         <ProfileHeader onBack={onBack} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Profile Card, Important Dates, and Connections */}
+          {/* Left Column - Important Notables, Profile Card, Important Dates, and Connections */}
           <div className="lg:col-span-1 space-y-6">
+            <ImportantNotables notables={customer.importantNotables || ['High-value client', 'Prefers quiet atmosphere', 'Regular wine enthusiast']} />
             <ProfileCard customer={customer} />
             <ImportantDates importantDates={customer.importantDates} />
             <ConnectionsList connections={customer.connections} />

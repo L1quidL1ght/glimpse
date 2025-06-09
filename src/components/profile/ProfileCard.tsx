@@ -32,18 +32,6 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ customer }) => {
           <Badge variant="outline" className="border-primary/30 text-primary">Regular</Badge>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4 w-full">
-          <div className="text-center p-3 bg-muted rounded-lg">
-            <div className="text-lg font-semibold text-foreground">{customer.totalVisits}</div>
-            <div className="text-xs text-muted-foreground">Total Visits</div>
-          </div>
-          <div className="text-center p-3 bg-muted rounded-lg">
-            <div className="text-sm font-semibold text-foreground">{customer.favoriteTable}</div>
-            <div className="text-xs text-muted-foreground">Favorite Table</div>
-          </div>
-        </div>
-
         {/* Last Visit */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="w-4 h-4" />

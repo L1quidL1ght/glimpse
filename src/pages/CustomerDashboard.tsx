@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,7 +38,8 @@ const CustomerDashboard = () => {
         { date: '2024-06-05', party: 2, table: 'Table 7', notes: 'Celebrated anniversary' },
         { date: '2024-05-20', party: 4, table: 'Table 12', notes: 'Business dinner' }
       ],
-      notes: 'Prefers window seating. Always orders dessert. Very particular about wine pairings and likes to try new cocktails.'
+      notes: 'Prefers window seating. Always orders dessert. Very particular about wine pairings and likes to try new cocktails.',
+      importantNotables: ['VIP client', 'Wine connoisseur', 'Prefers romantic atmosphere', 'Always celebrates special occasions here']
     },
     {
       id: 2,
@@ -65,7 +65,8 @@ const CustomerDashboard = () => {
       visits: [
         { date: '2024-06-05', party: 2, table: 'Table 7', notes: 'Celebrated anniversary' }
       ],
-      notes: 'Enjoys wine pairings. Regular customer. Often orders multiple courses and likes to discuss wine selections with sommelier.'
+      notes: 'Enjoys wine pairings. Regular customer. Often orders multiple courses and likes to discuss wine selections with sommelier.',
+      importantNotables: ['Business professional', 'Whiskey enthusiast', 'Enjoys detailed wine discussions', 'Generous tipper']
     }
   ];
 

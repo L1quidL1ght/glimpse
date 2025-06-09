@@ -24,7 +24,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
         </div>
         <div className="flex flex-wrap gap-2">
           {customer.tablePreferences?.map((pref: string, index: number) => (
-            <Badge key={index} variant="outline">{pref}</Badge>
+            <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{pref}</Badge>
           ))}
         </div>
       </Card>
@@ -37,7 +37,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
         </div>
         <div className="flex flex-wrap gap-2">
           {customer.foodPreferences.map((pref: string, index: number) => (
-            <Badge key={index} variant="secondary">{pref}</Badge>
+            <Badge key={index} variant="secondary" className="bg-muted/50">{pref}</Badge>
           ))}
         </div>
       </Card>
@@ -50,7 +50,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
         </div>
         <div className="flex flex-wrap gap-2">
           {customer.winePreferences.map((wine: string, index: number) => (
-            <Badge key={index} variant="outline">{wine}</Badge>
+            <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{wine}</Badge>
           ))}
         </div>
       </Card>
@@ -63,7 +63,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
         </div>
         <div className="flex flex-wrap gap-2">
           {customer.spiritsPreferences?.map((spirit: string, index: number) => (
-            <Badge key={index} variant="outline">{spirit}</Badge>
+            <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{spirit}</Badge>
           ))}
         </div>
       </Card>
@@ -76,7 +76,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
         </div>
         <div className="flex flex-wrap gap-2">
           {customer.cocktailPreferences.map((cocktail: string, index: number) => (
-            <Badge key={index} variant="outline">{cocktail}</Badge>
+            <Badge key={index} variant="outline" className="bg-muted/50 border-muted">{cocktail}</Badge>
           ))}
         </div>
       </Card>

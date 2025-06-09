@@ -20,7 +20,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				inter: ['Inter', 'sans-serif'],
+				opensans: ['Open Sans', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
