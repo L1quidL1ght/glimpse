@@ -54,17 +54,24 @@ const EditGuestDialog: React.FC<EditGuestDialogProps> = ({
         phone: customer.phone || '',
         tags: customer.tags || [],
         tablePreferences: customer.tablePreferences || [],
+        foodPreferences: customer.foodPreferences || [],
+        winePreferences: customer.winePreferences || [],
+        cocktailPreferences: customer.cocktailPreferences || [],
+        spiritsPreferences: customer.spiritsPreferences || [],
         allergies: customer.allergies || [],
+        importantDates: customer.importantDates || [],
+        connections: customer.connections || [],
+        notes: customer.notes || '',
         importantNotables: customer.importantNotables || []
       });
 
       setConnections(customer.connections || []);
       setImportantDates(customer.importantDates || []);
       setPreferences({
-        food: customer.foodPreferences || [],
-        wine: customer.winePreferences || [],
-        cocktail: customer.cocktailPreferences || [],
-        spirits: customer.spiritsPreferences || []
+        food: customer.foodPreferences?.map((p: any) => p.value) || [],
+        wine: customer.winePreferences?.map((p: any) => p.value) || [],
+        cocktail: customer.cocktailPreferences?.map((p: any) => p.value) || [],
+        spirits: customer.spiritsPreferences?.map((p: any) => p.value) || []
       });
     }
   }, [customer, open, setFormData]);
@@ -104,86 +111,119 @@ const EditGuestDialog: React.FC<EditGuestDialogProps> = ({
 
       if (customerError) throw customerError;
 
-      // Handle all the related data updates (tags, preferences, etc.)
-      // Update tags
-      const { error: tagsError } = await supabase
-        .from('customers')
-        .update({ tags: formData.tags })
-        .eq('id', customer.id);
+      // Delete and recreate tags
+      await supabase.from('customer_tags').delete().eq('customer_id', customer.id);
+      if (formData.tags.length > 0) {
+        const { error: tagsError } = await supabase
+          .from('customer_tags')
+          .insert(formData.tags.map(tag => ({
+            customer_id: customer.id,
+            tag_name: tag
+          })));
+        if (tagsError) throw tagsError;
+      }
 
-      if (tagsError) throw tagsError;
+      // Delete and recreate table preferences
+      await supabase.from('table_preferences').delete().eq('customer_id', customer.id);
+      if (formData.tablePreferences.length > 0) {
+        const { error: tablePreferencesError } = await supabase
+          .from('table_preferences')
+          .insert(formData.tablePreferences.map(pref => ({
+            customer_id: customer.id,
+            preference: pref
+          })));
+        if (tablePreferencesError) throw tablePreferencesError;
+      }
 
-      // Update table preferences
-      const { error: tablePreferencesError } = await supabase
-        .from('customers')
-        .update({ tablePreferences: formData.tablePreferences })
-        .eq('id', customer.id);
+      // Delete and recreate allergies
+      await supabase.from('allergies').delete().eq('customer_id', customer.id);
+      if (formData.allergies.length > 0) {
+        const { error: allergiesError } = await supabase
+          .from('allergies')
+          .insert(formData.allergies.map(allergy => ({
+            customer_id: customer.id,
+            allergy: allergy
+          })));
+        if (allergiesError) throw allergiesError;
+      }
 
-      if (tablePreferencesError) throw tablePreferencesError;
+      // Delete and recreate important notables
+      await supabase.from('important_notables').delete().eq('customer_id', customer.id);
+      if (formData.importantNotables.length > 0) {
+        const { error: importantNotablesError } = await supabase
+          .from('important_notables')
+          .insert(formData.importantNotables.map(notable => ({
+            customer_id: customer.id,
+            notable: notable
+          })));
+        if (importantNotablesError) throw importantNotablesError;
+      }
 
-      // Update allergies
-      const { error: allergiesError } = await supabase
-        .from('customers')
-        .update({ allergies: formData.allergies })
-        .eq('id', customer.id);
+      // Handle connections (more complex as it requires customer lookups)
+      await supabase.from('connections').delete().eq('customer_id', customer.id);
+      for (const connection of connections) {
+        const { data: connectedCustomer } = await supabase
+          .from('customers')
+          .select('id')
+          .eq('name', connection.name)
+          .single();
+        
+        if (connectedCustomer) {
+          const { error: connectionError } = await supabase
+            .from('connections')
+            .insert({
+              customer_id: customer.id,
+              connected_customer_id: connectedCustomer.id,
+              relationship: connection.relationship
+            });
+          if (connectionError) throw connectionError;
+        }
+      }
 
-      if (allergiesError) throw allergiesError;
+      // Delete and recreate important dates
+      await supabase.from('important_dates').delete().eq('customer_id', customer.id);
+      if (importantDates.length > 0) {
+        const { error: importantDatesError } = await supabase
+          .from('important_dates')
+          .insert(importantDates.map(date => ({
+            customer_id: customer.id,
+            event: date.event,
+            date: date.date
+          })));
+        if (importantDatesError) throw importantDatesError;
+      }
 
-      // Update important notables
-      const { error: importantNotablesError } = await supabase
-        .from('customers')
-        .update({ importantNotables: formData.importantNotables })
-        .eq('id', customer.id);
+      // Update preferences
+      const preferenceCategories = [
+        { category: 'food_preferences', data: preferences.food },
+        { category: 'wine_preferences', data: preferences.wine },
+        { category: 'cocktail_preferences', data: preferences.cocktail },
+        { category: 'spirits_preferences', data: preferences.spirits }
+      ];
 
-      if (importantNotablesError) throw importantNotablesError;
+      for (const { category, data } of preferenceCategories) {
+        await supabase.from(category).delete().eq('customer_id', customer.id);
+        if (data.length > 0) {
+          const { error } = await supabase
+            .from(category)
+            .insert(data.map(pref => ({
+              customer_id: customer.id,
+              preference: pref,
+              is_golden: false
+            })));
+          if (error) throw error;
+        }
+      }
 
-      // Update connections
-      const { error: connectionsError } = await supabase
-        .from('customers')
-        .update({ connections: connections })
-        .eq('id', customer.id);
-
-      if (connectionsError) throw connectionsError;
-
-      // Update important dates
-      const { error: importantDatesError } = await supabase
-        .from('customers')
-        .update({ importantDates: importantDates })
-        .eq('id', customer.id);
-
-      if (importantDatesError) throw importantDatesError;
-
-      // Update food preferences
-      const { error: foodPreferencesError } = await supabase
-        .from('customers')
-        .update({ foodPreferences: preferences.food })
-        .eq('id', customer.id);
-
-      if (foodPreferencesError) throw foodPreferencesError;
-
-      // Update wine preferences
-      const { error: winePreferencesError } = await supabase
-        .from('customers')
-        .update({ winePreferences: preferences.wine })
-        .eq('id', customer.id);
-
-      if (winePreferencesError) throw winePreferencesError;
-
-      // Update cocktail preferences
-      const { error: cocktailPreferencesError } = await supabase
-        .from('customers')
-        .update({ cocktailPreferences: preferences.cocktail })
-        .eq('id', customer.id);
-
-      if (cocktailPreferencesError) throw cocktailPreferencesError;
-
-      // Update spirits preferences
-      const { error: spiritsPreferencesError } = await supabase
-        .from('customers')
-        .update({ spiritsPreferences: preferences.spirits })
-        .eq('id', customer.id);
-
-      if (spiritsPreferencesError) throw spiritsPreferencesError;
+      // Update or create customer notes
+      const { error: notesError } = await supabase
+        .from('customer_notes')
+        .upsert({
+          customer_id: customer.id,
+          note: formData.notes,
+          updated_at: new Date().toISOString()
+        });
+      if (notesError) throw notesError;
 
       toast({
         title: "Success",

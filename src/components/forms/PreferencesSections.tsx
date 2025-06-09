@@ -14,9 +14,21 @@ import { usePreferenceOptions } from '@/hooks/usePreferenceOptions';
 interface PreferencesSectionsProps {
   formData: GuestFormData;
   updateField: <K extends keyof GuestFormData>(field: K, value: GuestFormData[K]) => void;
+  preferences: {
+    food: string[];
+    wine: string[];
+    cocktail: string[];
+    spirits: string[];
+  };
+  onPreferencesChange: (category: string, preferences: string[]) => void;
 }
 
-const PreferencesSections: React.FC<PreferencesSectionsProps> = ({ formData, updateField }) => {
+const PreferencesSections: React.FC<PreferencesSectionsProps> = ({ 
+  formData, 
+  updateField, 
+  preferences, 
+  onPreferencesChange 
+}) => {
   const { foodOptions, wineOptions, cocktailOptions, spiritsOptions } = usePreferenceOptions();
   
   const [currentConnection, setCurrentConnection] = React.useState({ name: '', relationship: '' });

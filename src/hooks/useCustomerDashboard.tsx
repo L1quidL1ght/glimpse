@@ -41,6 +41,8 @@ interface Customer {
 
 export const useCustomerDashboard = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -160,10 +162,27 @@ export const useCustomerDashboard = () => {
     });
   };
 
+  // Filter customers based on search term
+  const filteredCustomers = customers.filter(customer => 
+    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.phone?.includes(searchTerm)
+  );
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
   return {
-    customers,
+    customers: filteredCustomers,
+    selectedCustomer,
+    searchTerm,
+    setSearchTerm,
+    setSelectedCustomer,
+    isLoading: loading,
     loading,
     fetchCustomers,
-    handleGuestAdded
+    handleGuestAdded,
+    refetch: fetchCustomers
   };
 };

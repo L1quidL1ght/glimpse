@@ -81,6 +81,14 @@ const CustomerDashboard = () => {
     }
   };
 
+  const handleDuplicatesResolved = () => {
+    setShowDuplicateDialog(false);
+    toast({
+      title: "Success",
+      description: "Duplicate phone numbers resolved",
+    });
+  };
+
   if (selectedCustomer) {
     return (
       <CustomerProfile
@@ -158,6 +166,7 @@ const CustomerDashboard = () => {
         <DuplicatePhoneDialog
           open={showDuplicateDialog}
           onOpenChange={setShowDuplicateDialog}
+          onResolved={handleDuplicatesResolved}
         />
 
         <AdminLoginDialog
