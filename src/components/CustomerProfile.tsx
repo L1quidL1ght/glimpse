@@ -3,7 +3,6 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
   ArrowLeft, 
   User, 
@@ -14,8 +13,11 @@ import {
   UtensilsCrossed,
   AlertTriangle,
   Heart,
-  Clock
+  Clock,
+  MapPin,
+  FileText
 } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 interface CustomerProfileProps {
   customer: any;
@@ -25,14 +27,16 @@ interface CustomerProfileProps {
 
 const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, allCustomers }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button variant="outline" onClick={onBack} className="p-2">
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <h1 className="text-2xl font-bold text-foreground">Guest Profile</h1>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={onBack} size="icon">
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <Logo />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -106,6 +110,19 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
           <div className="lg:col-span-2 space-y-6">
             {/* Preferences Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Table Preferences */}
+              <Card className="p-6 bg-card border border-border">
+                <div className="flex items-center gap-2 mb-4">
+                  <MapPin className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold text-foreground">Table Preferences</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {customer.tablePreferences?.map((pref: string, index: number) => (
+                    <Badge key={index} variant="outline">{pref}</Badge>
+                  ))}
+                </div>
+              </Card>
+
               {/* Food Preferences */}
               <Card className="p-6 bg-card border border-border">
                 <div className="flex items-center gap-2 mb-4">
@@ -128,6 +145,19 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
                 <div className="flex flex-wrap gap-2">
                   {customer.winePreferences.map((wine: string, index: number) => (
                     <Badge key={index} variant="outline">{wine}</Badge>
+                  ))}
+                </div>
+              </Card>
+
+              {/* Spirits Preferences */}
+              <Card className="p-6 bg-card border border-border">
+                <div className="flex items-center gap-2 mb-4">
+                  <Wine className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold text-foreground">Spirits Preferences</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {customer.spiritsPreferences?.map((spirit: string, index: number) => (
+                    <Badge key={index} variant="outline">{spirit}</Badge>
                   ))}
                 </div>
               </Card>
@@ -158,6 +188,17 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
                 </div>
               </Card>
             </div>
+
+            {/* Special Notes */}
+            <Card className="p-6 bg-card border border-border">
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="w-5 h-5 text-primary" />
+                <h3 className="font-semibold text-foreground">Special Notes</h3>
+              </div>
+              <div className="p-4 bg-muted rounded-lg">
+                <p className="text-muted-foreground leading-relaxed">{customer.notes}</p>
+              </div>
+            </Card>
 
             {/* Important Dates */}
             <Card className="p-6 bg-card border border-border">
@@ -203,12 +244,6 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
                   </div>
                 ))}
               </div>
-            </Card>
-
-            {/* Notes */}
-            <Card className="p-6 bg-card border border-border">
-              <h3 className="font-semibold text-foreground mb-4">Special Notes</h3>
-              <p className="text-muted-foreground">{customer.notes}</p>
             </Card>
           </div>
         </div>

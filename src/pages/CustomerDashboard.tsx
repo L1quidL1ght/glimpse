@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { Search, Plus, Filter } from 'lucide-react';
+import { Search, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import CustomerCard from '@/components/CustomerCard';
+import Logo from '@/components/Logo';
+import GuestListItem from '@/components/GuestListItem';
 import CustomerProfile from '@/components/CustomerProfile';
 
 const CustomerDashboard = () => {
@@ -21,9 +22,11 @@ const CustomerDashboard = () => {
       lastVisit: '2024-06-05',
       totalVisits: 12,
       favoriteTable: 'Table 7',
+      tablePreferences: ['Window seating', 'Quiet area', 'Corner booth'],
       foodPreferences: ['Vegetarian', 'Gluten-free'],
       winePreferences: ['Pinot Noir', 'Sauvignon Blanc'],
       cocktailPreferences: ['Moscow Mule', 'Aperol Spritz'],
+      spiritsPreferences: ['Vodka', 'Gin', 'Light rum'],
       allergies: ['Shellfish', 'Nuts'],
       importantDates: [
         { date: '2024-08-15', event: 'Anniversary' },
@@ -36,7 +39,7 @@ const CustomerDashboard = () => {
         { date: '2024-06-05', party: 2, table: 'Table 7', notes: 'Celebrated anniversary' },
         { date: '2024-05-20', party: 4, table: 'Table 12', notes: 'Business dinner' }
       ],
-      notes: 'Prefers window seating. Always orders dessert.'
+      notes: 'Prefers window seating. Always orders dessert. Very particular about wine pairings and likes to try new cocktails.'
     },
     {
       id: 2,
@@ -47,9 +50,11 @@ const CustomerDashboard = () => {
       lastVisit: '2024-06-05',
       totalVisits: 12,
       favoriteTable: 'Table 7',
+      tablePreferences: ['Bar seating', 'High-top tables'],
       foodPreferences: ['Steak', 'Seafood'],
       winePreferences: ['Cabernet Sauvignon', 'Malbec'],
       cocktailPreferences: ['Old Fashioned', 'Whiskey Sour'],
+      spiritsPreferences: ['Whiskey', 'Bourbon', 'Scotch'],
       allergies: ['None'],
       importantDates: [
         { date: '2024-08-15', event: 'Anniversary' }
@@ -60,7 +65,7 @@ const CustomerDashboard = () => {
       visits: [
         { date: '2024-06-05', party: 2, table: 'Table 7', notes: 'Celebrated anniversary' }
       ],
-      notes: 'Enjoys wine pairings. Regular customer.'
+      notes: 'Enjoys wine pairings. Regular customer. Often orders multiple courses and likes to discuss wine selections with sommelier.'
     }
   ];
 
@@ -80,41 +85,36 @@ const CustomerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Guest Database</h1>
-          <p className="text-muted-foreground">Manage and view guest profiles and preferences</p>
-        </div>
-
-        {/* Search and Controls */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search guests by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
+        <div className="flex items-center justify-between mb-8">
+          <Logo />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon">
+              <Settings className="w-4 h-4" />
             </Button>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Guest
+            <Button size="icon" className="bg-primary hover:bg-primary/90">
+              <Plus className="w-4 h-4" />
             </Button>
           </div>
         </div>
 
-        {/* Customer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Search */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
+            placeholder="Search guests..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-card border-border"
+          />
+        </div>
+
+        {/* Guest List */}
+        <div className="space-y-2">
           {filteredCustomers.map(customer => (
-            <CustomerCard
+            <GuestListItem
               key={customer.id}
               customer={customer}
               onClick={() => setSelectedCustomer(customer)}
