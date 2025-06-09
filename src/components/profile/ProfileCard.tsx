@@ -1,28 +1,48 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { TagIcon } from '@/components/ui/tag-icon';
+import ProfilePictureUpload from './ProfilePictureUpload';
 
 interface ProfileCardProps {
   customer: any;
+  isEditing?: boolean;
+  onCustomerUpdated?: () => void;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ customer }) => {
+const ProfileCard: React.FC<ProfileCardProps> = ({ 
+  customer, 
+  isEditing = false, 
+  onCustomerUpdated 
+}) => {
+  const [avatarUrl, setAvatarUrl] = useState(customer.avatar_url);
+
+  const handleAvatarUpdated = (newUrl: string) => {
+    setAvatarUrl(newUrl);
+    if (onCustomerUpdated) {
+      onCustomerUpdated();
+    }
+  };
+
   return (
     <Card className="p-6 bg-card border border-border">
       <div className="flex flex-col items-center text-center space-y-4">
         {/* Profile Picture */}
-        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-          <User className="w-12 h-12 text-primary" />
-        </div>
+        <ProfilePictureUpload
+          currentAvatarUrl={avatarUrl}
+          customerName={customer.name}
+          customerId={customer.id}
+          onAvatarUpdated={handleAvatarUpdated}
+          isEditing={isEditing}
+        />
 
         {/* Name with Icons */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 justify-center">
             <h2 className="text-xl font-bold text-foreground">{customer.name}</h2>
-            {/* Tag Icons beside name */}
+            {/* Tag Icons beside name - show only first 3 */}
             <div className="flex items-center gap-1">
               {customer.tags && customer.tags.slice(0, 3).map((tag: string, index: number) => (
                 <TagIcon key={index} tagName={tag} className="w-5 h-5" />

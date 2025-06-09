@@ -44,6 +44,11 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
       .slice(0, 2);
   };
 
+  // Filter tags to show only meaningful ones (not including basic status tags)
+  const filteredTags = customer.tags?.filter(tag => 
+    !['Regular', 'New'].includes(tag)
+  ) || [];
+
   return (
     <Card 
       className="p-4 cursor-pointer hover:bg-accent/50 transition-all duration-200 bg-card border border-border group"
@@ -70,29 +75,20 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
             <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors">
               {customer.name}
             </h3>
-            {/* Tag Icons beside name */}
+            {/* Tag Icons beside name - show only important tags */}
             <div className="flex items-center gap-1">
-              {customer.tags && customer.tags.slice(0, 3).map((tag, index) => (
+              {filteredTags.slice(0, 2).map((tag, index) => (
                 <TagIcon key={index} tagName={tag} className="w-4 h-4" />
               ))}
-              {customer.tags && customer.tags.length > 3 && (
-                <span className="text-xs text-muted-foreground">+{customer.tags.length - 3}</span>
+              {filteredTags.length > 2 && (
+                <span className="text-xs text-muted-foreground">+{filteredTags.length - 2}</span>
               )}
             </div>
           </div>
           
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            {customer.email && (
-              <span className="truncate">{customer.email}</span>
-            )}
-            {customer.phone && (
-              <span>{customer.phone}</span>
-            )}
-          </div>
-          
-          {/* Tag badges */}
+          {/* Tag badges - show important tags only */}
           <div className="flex items-center gap-2 mt-1">
-            {customer.tags && customer.tags.map((tag, index) => (
+            {filteredTags.map((tag, index) => (
               <Badge key={index} variant={getTagVariant(tag)} className="text-xs flex items-center gap-1">
                 <TagIcon tagName={tag} className="w-3 h-3" />
                 {tag}

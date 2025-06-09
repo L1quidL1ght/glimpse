@@ -8,8 +8,9 @@ import CustomerProfile from '@/components/CustomerProfile';
 import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
 import DuplicatePhoneDialog from '@/components/dialogs/DuplicatePhoneDialog';
 import AdminLoginDialog from '@/components/dialogs/AdminLoginDialog';
+import NavigationHeader from '@/components/navigation/NavigationHeader';
 import { Button } from '@/components/ui/button';
-import { LogOut, UserCheck } from 'lucide-react';
+import { UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -49,14 +50,6 @@ const CustomerDashboard = () => {
     toast({
       title: "Admin Access Granted",
       description: "You now have admin privileges"
-    });
-  };
-
-  const handleSignOut = () => {
-    setIsAdmin(false);
-    toast({
-      title: "Signed Out",
-      description: "Admin session ended"
     });
   };
 
@@ -103,32 +96,23 @@ const CustomerDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6">
+        <NavigationHeader title="Guest Directory" />
+        
         <div className="flex items-center justify-between mb-6">
           <DashboardHeader onAddGuest={() => setShowAddDialog(true)} />
           
           {/* Admin Controls */}
           <div className="flex items-center gap-2">
             {isAdmin ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleFixDuplicates}
-                  className="flex items-center gap-2"
-                >
-                  <UserCheck className="w-4 h-4" />
-                  Fix Duplicates
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </Button>
-              </>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleFixDuplicates}
+                className="flex items-center gap-2"
+              >
+                <UserCheck className="w-4 h-4" />
+                Fix Duplicates
+              </Button>
             ) : (
               <Button
                 variant="outline"

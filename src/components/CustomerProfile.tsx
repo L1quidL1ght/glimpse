@@ -9,6 +9,7 @@ import ImportantDates from '@/components/profile/ImportantDates';
 import ImportantNotables from '@/components/profile/ImportantNotables';
 import OrderHistory from '@/components/profile/OrderHistory';
 import EditGuestDialog from '@/components/dialogs/EditGuestDialog';
+import NavigationHeader from '@/components/navigation/NavigationHeader';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 
@@ -38,6 +39,11 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto p-6">
+        <NavigationHeader 
+          onBack={onBack}
+          showBackButton={true}
+        />
+
         <div className="flex items-center justify-between mb-6">
           <SearchHeader 
             onBack={onBack} 
@@ -59,7 +65,11 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Profile, Connections, Important Notables, Important Dates */}
           <div className="lg:col-span-1 space-y-4">
-            <ProfileCard customer={customer} />
+            <ProfileCard 
+              customer={customer} 
+              isEditing={isAdmin}
+              onCustomerUpdated={handleGuestUpdated}
+            />
             <CompactConnections connections={customer.connections} allCustomers={allCustomers} />
             <ImportantNotables notables={customer.importantNotables || []} />
             <ImportantDates importantDates={customer.importantDates} />
