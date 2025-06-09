@@ -4,7 +4,6 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Plus, X } from 'lucide-react';
 import PreferenceInput from './PreferenceInput';
 import CustomerAutocomplete from './CustomerAutocomplete';
