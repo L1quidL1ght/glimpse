@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import Logo from '@/components/Logo';
 import GuestListItem from '@/components/GuestListItem';
 import CustomerProfile from '@/components/CustomerProfile';
-import AddGuestDialog from '@/components/AddGuestDialog';
+import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
