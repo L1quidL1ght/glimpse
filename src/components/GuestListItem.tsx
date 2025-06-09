@@ -5,12 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { User } from 'lucide-react';
 
 interface Customer {
-  id: number;
+  id: string;
   name: string;
   email: string;
   phone: string;
-  avatar: string;
-  lastVisit: string;
+  avatar_url: string | null;
   totalVisits: number;
   favoriteTable: string;
   foodPreferences: string[];
@@ -42,6 +41,9 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
             <Badge variant="secondary" className="text-xs">
               {customer.totalVisits} visits
             </Badge>
+            {customer.email && (
+              <span className="text-xs text-muted-foreground truncate">{customer.email}</span>
+            )}
           </div>
         </div>
 
