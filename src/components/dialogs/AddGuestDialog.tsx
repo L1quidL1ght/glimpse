@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -23,6 +22,19 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
   const { toast } = useToast();
   const { formData, updateField, resetForm } = useGuestForm();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // Dummy preferences state for compatibility
+  const preferences = {
+    food: [],
+    wine: [],
+    cocktail: [],
+    spirits: []
+  };
+
+  const handlePreferencesChange = (category: string, newPreferences: string[]) => {
+    // This is a dummy function for compatibility - preferences are handled directly in the form
+    console.log('Preferences changed:', category, newPreferences);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -283,7 +295,12 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
         <ScrollArea className="max-h-[70vh] pr-4">
           <form onSubmit={handleSubmit} className="space-y-6">
             <GuestFormFields formData={formData} updateField={updateField} />
-            <PreferencesSections formData={formData} updateField={updateField} />
+            <PreferencesSections 
+              formData={formData} 
+              updateField={updateField}
+              preferences={preferences}
+              onPreferencesChange={handlePreferencesChange}
+            />
             
             <div className="flex gap-2 pt-4">
               <Button
