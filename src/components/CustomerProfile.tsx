@@ -1,7 +1,5 @@
 
 import React, { useState } from 'react';
-import SearchHeader from '@/components/profile/SearchHeader';
-import ProfileCard from '@/components/profile/ProfileCard';
 import CompactConnections from '@/components/profile/CompactConnections';
 import PreferencesGrid from '@/components/profile/PreferencesGrid';
 import SpecialNotes from '@/components/profile/SpecialNotes';
@@ -10,6 +8,8 @@ import ImportantNotables from '@/components/profile/ImportantNotables';
 import OrderHistory from '@/components/profile/OrderHistory';
 import EditGuestDialog from '@/components/dialogs/EditGuestDialog';
 import NavigationHeader from '@/components/navigation/NavigationHeader';
+import ProfileCard from '@/components/profile/ProfileCard';
+import SearchHeader from '@/components/profile/SearchHeader';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 

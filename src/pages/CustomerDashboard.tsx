@@ -5,11 +5,12 @@ import DashboardSearch from '@/components/dashboard/DashboardSearch';
 import GuestList from '@/components/dashboard/GuestList';
 import CustomerProfile from '@/components/CustomerProfile';
 import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
+import BulkImportDialog from '@/components/dialogs/BulkImportDialog';
 import DuplicatePhoneDialog from '@/components/dialogs/DuplicatePhoneDialog';
 import AdminLoginDialog from '@/components/dialogs/AdminLoginDialog';
 import NavigationHeader from '@/components/navigation/NavigationHeader';
 import { Button } from '@/components/ui/button';
-import { UserCheck } from 'lucide-react';
+import { UserCheck, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,6 +26,7 @@ const CustomerDashboard = () => {
   } = useCustomerDashboard();
 
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showBulkImportDialog, setShowBulkImportDialog] = useState(false);
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -41,6 +43,11 @@ const CustomerDashboard = () => {
   const handleGuestAdded = () => {
     refetch();
     setShowAddDialog(false);
+  };
+
+  const handleBulkImportComplete = () => {
+    refetch();
+    setShowBulkImportDialog(false);
   };
 
   const handleAdminLogin = () => {
@@ -103,15 +110,26 @@ const CustomerDashboard = () => {
           {/* Admin Controls */}
           <div className="flex items-center gap-2">
             {isAdmin ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleFixDuplicates}
-                className="flex items-center gap-2"
-              >
-                <UserCheck className="w-4 h-4" />
-                Fix Duplicates
-              </Button>
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleFixDuplicates}
+                  className="flex items-center gap-2"
+                >
+                  <UserCheck className="w-4 h-4" />
+                  Fix Duplicates
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBulkImportDialog(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Bulk Import
+                </Button>
+              </>
             ) : (
               <Button
                 variant="outline"
@@ -146,6 +164,12 @@ const CustomerDashboard = () => {
           open={showAddDialog}
           onOpenChange={setShowAddDialog}
           onGuestAdded={handleGuestAdded}
+        />
+
+        <BulkImportDialog
+          open={showBulkImportDialog}
+          onOpenChange={setShowBulkImportDialog}
+          onImportComplete={handleBulkImportComplete}
         />
 
         <DuplicatePhoneDialog
