@@ -1,13 +1,17 @@
-
-import React, { useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import React, { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Trash2 } from 'lucide-react';
+import { useGuestForm } from '@/hooks/useGuestForm';
+import { useCustomerAutocomplete } from '@/hooks/useCustomerAutocomplete';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import GuestFormFields from '@/components/forms/GuestFormFields';
-import PreferencesSections from '@/components/forms/PreferencesSections';
-import { useGuestForm } from '@/hooks/useGuestForm';
+import ExtendedGuestFormFields from '@/components/forms/ExtendedGuestFormFields';
 
 interface EditGuestDialogProps {
   open: boolean;
@@ -23,37 +27,63 @@ const EditGuestDialog: React.FC<EditGuestDialogProps> = ({
   customer
 }) => {
   const { toast } = useToast();
-  const { formData, updateField, resetForm } = useGuestForm();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { customers } = useCustomerAutocomplete();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [connections, setConnections] = useState<Array<{ name: string; relationship: string }>>([]);
+  const [importantDates, setImportantDates] = useState<Array<{ event: string; date: string }>>([]);
+  const [preferences, setPreferences] = useState({
+    food: [] as string[],
+    wine: [] as string[],
+    cocktail: [] as string[],
+    spirits: [] as string[]
+  });
 
-  // Populate form with existing customer data
+  const { formData, updateField, resetForm, setFormData } = useGuestForm();
+
+  // Get existing phone numbers excluding current customer
+  const existingPhoneNumbers = customers
+    .filter(c => c.id !== customer?.id)
+    .map(c => c.phone)
+    .filter(Boolean) as string[];
+
   useEffect(() => {
     if (customer && open) {
-      updateField('name', customer.name || '');
-      updateField('email', customer.email || '');
-      updateField('phone', customer.phone || '');
-      updateField('tags', customer.tags || []);
-      updateField('tablePreferences', customer.tablePreferences || []);
-      updateField('foodPreferences', customer.foodPreferences || []);
-      updateField('winePreferences', customer.winePreferences || []);
-      updateField('cocktailPreferences', customer.cocktailPreferences || []);
-      updateField('spiritsPreferences', customer.spiritsPreferences || []);
-      updateField('allergies', customer.allergies || []);
-      updateField('importantDates', customer.importantDates || []);
-      updateField('connections', customer.connections || []);
-      updateField('notes', customer.notes || '');
-      updateField('importantNotables', customer.importantNotables || []);
+      setFormData({
+        name: customer.name || '',
+        email: customer.email || '',
+        phone: customer.phone || '',
+        tags: customer.tags || [],
+        tablePreferences: customer.tablePreferences || [],
+        allergies: customer.allergies || [],
+        importantNotables: customer.importantNotables || []
+      });
+
+      setConnections(customer.connections || []);
+      setImportantDates(customer.importantDates || []);
+      setPreferences({
+        food: customer.foodPreferences || [],
+        wine: customer.winePreferences || [],
+        cocktail: customer.cocktailPreferences || [],
+        spirits: customer.spiritsPreferences || []
+      });
     }
-  }, [customer, open]);
+  }, [customer, open, setFormData]);
+
+  const handlePreferencesChange = (category: string, newPreferences: string[]) => {
+    setPreferences(prev => ({
+      ...prev,
+      [category]: newPreferences
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name.trim()) {
       toast({
-        title: "Error",
+        title: "Validation Error",
         description: "Guest name is required",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
@@ -66,180 +96,195 @@ const EditGuestDialog: React.FC<EditGuestDialogProps> = ({
         .from('customers')
         .update({
           name: formData.name.trim(),
-          email: formData.email.trim() || null,
-          phone: formData.phone.trim() || null,
+          email: formData.email?.trim() || null,
+          phone: formData.phone?.trim() || null,
+          updated_at: new Date().toISOString()
         })
         .eq('id', customer.id);
 
       if (customerError) throw customerError;
 
-      // Delete existing related data and re-insert
-      await supabase.from('customer_tags').delete().eq('customer_id', customer.id);
-      await supabase.from('table_preferences').delete().eq('customer_id', customer.id);
-      await supabase.from('food_preferences').delete().eq('customer_id', customer.id);
-      await supabase.from('wine_preferences').delete().eq('customer_id', customer.id);
-      await supabase.from('cocktail_preferences').delete().eq('customer_id', customer.id);
-      await supabase.from('spirits_preferences').delete().eq('customer_id', customer.id);
-      await supabase.from('allergies').delete().eq('customer_id', customer.id);
-      await supabase.from('important_dates').delete().eq('customer_id', customer.id);
-      await supabase.from('important_notables').delete().eq('customer_id', customer.id);
-      await supabase.from('customer_notes').delete().eq('customer_id', customer.id);
-      await supabase.from('connections').delete().eq('customer_id', customer.id);
+      // Handle all the related data updates (tags, preferences, etc.)
+      // Update tags
+      const { error: tagsError } = await supabase
+        .from('customers')
+        .update({ tags: formData.tags })
+        .eq('id', customer.id);
 
-      // Re-insert all the data (same logic as AddGuestDialog)
-      if (formData.tags.length > 0) {
-        const tagInserts = formData.tags.map(tag => ({
-          customer_id: customer.id,
-          tag_name: tag
-        }));
-        await supabase.from('customer_tags').insert(tagInserts);
-      }
+      if (tagsError) throw tagsError;
 
-      if (formData.tablePreferences.length > 0) {
-        const tablePrefs = formData.tablePreferences.map(pref => ({
-          customer_id: customer.id,
-          preference: pref
-        }));
-        await supabase.from('table_preferences').insert(tablePrefs);
-      }
+      // Update table preferences
+      const { error: tablePreferencesError } = await supabase
+        .from('customers')
+        .update({ tablePreferences: formData.tablePreferences })
+        .eq('id', customer.id);
 
-      if (formData.foodPreferences.length > 0) {
-        const foodPrefs = formData.foodPreferences.map(pref => ({
-          customer_id: customer.id,
-          preference: pref.value,
-          is_golden: pref.isGolden
-        }));
-        await supabase.from('food_preferences').insert(foodPrefs);
-      }
+      if (tablePreferencesError) throw tablePreferencesError;
 
-      if (formData.winePreferences.length > 0) {
-        const winePrefs = formData.winePreferences.map(pref => ({
-          customer_id: customer.id,
-          preference: pref.value,
-          is_golden: pref.isGolden
-        }));
-        await supabase.from('wine_preferences').insert(winePrefs);
-      }
+      // Update allergies
+      const { error: allergiesError } = await supabase
+        .from('customers')
+        .update({ allergies: formData.allergies })
+        .eq('id', customer.id);
 
-      if (formData.cocktailPreferences.length > 0) {
-        const cocktailPrefs = formData.cocktailPreferences.map(pref => ({
-          customer_id: customer.id,
-          preference: pref.value,
-          is_golden: pref.isGolden
-        }));
-        await supabase.from('cocktail_preferences').insert(cocktailPrefs);
-      }
+      if (allergiesError) throw allergiesError;
 
-      if (formData.spiritsPreferences.length > 0) {
-        const spiritsPrefs = formData.spiritsPreferences.map(pref => ({
-          customer_id: customer.id,
-          preference: pref.value,
-          is_golden: pref.isGolden
-        }));
-        await supabase.from('spirits_preferences').insert(spiritsPrefs);
-      }
+      // Update important notables
+      const { error: importantNotablesError } = await supabase
+        .from('customers')
+        .update({ importantNotables: formData.importantNotables })
+        .eq('id', customer.id);
 
-      if (formData.allergies.length > 0) {
-        const allergyInserts = formData.allergies.map(allergy => ({
-          customer_id: customer.id,
-          allergy: allergy
-        }));
-        await supabase.from('allergies').insert(allergyInserts);
-      }
+      if (importantNotablesError) throw importantNotablesError;
 
-      if (formData.importantDates.length > 0) {
-        const dateInserts = formData.importantDates.map(dateItem => ({
-          customer_id: customer.id,
-          event: dateItem.event,
-          date: dateItem.date
-        }));
-        await supabase.from('important_dates').insert(dateInserts);
-      }
+      // Update connections
+      const { error: connectionsError } = await supabase
+        .from('customers')
+        .update({ connections: connections })
+        .eq('id', customer.id);
 
-      if (formData.importantNotables.length > 0) {
-        const notableInserts = formData.importantNotables.map(notable => ({
-          customer_id: customer.id,
-          notable: notable
-        }));
-        await supabase.from('important_notables').insert(notableInserts);
-      }
+      if (connectionsError) throw connectionsError;
 
-      if (formData.notes.trim()) {
-        await supabase.from('customer_notes').insert({
-          customer_id: customer.id,
-          note: formData.notes.trim()
-        });
-      }
+      // Update important dates
+      const { error: importantDatesError } = await supabase
+        .from('customers')
+        .update({ importantDates: importantDates })
+        .eq('id', customer.id);
 
-      if (formData.connections.length > 0) {
-        for (const connection of formData.connections) {
-          const { data: connectedCustomer } = await supabase
-            .from('customers')
-            .select('id')
-            .eq('name', connection.name)
-            .single();
+      if (importantDatesError) throw importantDatesError;
 
-          if (connectedCustomer) {
-            await supabase.from('connections').insert({
-              customer_id: customer.id,
-              connected_customer_id: connectedCustomer.id,
-              relationship: connection.relationship
-            });
-          }
-        }
-      }
+      // Update food preferences
+      const { error: foodPreferencesError } = await supabase
+        .from('customers')
+        .update({ foodPreferences: preferences.food })
+        .eq('id', customer.id);
 
-      resetForm();
-      onGuestUpdated();
-      onOpenChange(false);
-      
+      if (foodPreferencesError) throw foodPreferencesError;
+
+      // Update wine preferences
+      const { error: winePreferencesError } = await supabase
+        .from('customers')
+        .update({ winePreferences: preferences.wine })
+        .eq('id', customer.id);
+
+      if (winePreferencesError) throw winePreferencesError;
+
+      // Update cocktail preferences
+      const { error: cocktailPreferencesError } = await supabase
+        .from('customers')
+        .update({ cocktailPreferences: preferences.cocktail })
+        .eq('id', customer.id);
+
+      if (cocktailPreferencesError) throw cocktailPreferencesError;
+
+      // Update spirits preferences
+      const { error: spiritsPreferencesError } = await supabase
+        .from('customers')
+        .update({ spiritsPreferences: preferences.spirits })
+        .eq('id', customer.id);
+
+      if (spiritsPreferencesError) throw spiritsPreferencesError;
+
       toast({
         title: "Success",
-        description: "Guest updated successfully!",
+        description: "Guest updated successfully"
       });
-    } catch (error) {
+
+      onGuestUpdated();
+      onOpenChange(false);
+    } catch (error: any) {
       console.error('Error updating guest:', error);
       toast({
         title: "Error",
-        description: "Failed to update guest. Please try again.",
-        variant: "destructive",
+        description: error.message || "Failed to update guest",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this guest? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('customers')
+        .delete()
+        .eq('id', customer.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Guest deleted successfully"
+      });
+
+      onGuestUpdated();
+      onOpenChange(false);
+    } catch (error: any) {
+      console.error('Error deleting guest:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete guest",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    onOpenChange(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Guest</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>Edit Guest</DialogTitle>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Delete Guest
+            </Button>
+          </div>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[70vh] pr-4">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <GuestFormFields formData={formData} updateField={updateField} />
-            <PreferencesSections formData={formData} updateField={updateField} />
-            
-            <div className="flex gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting || !formData.name.trim()}
-                className="flex-1"
-              >
-                {isSubmitting ? 'Updating...' : 'Update Guest'}
-              </Button>
-            </div>
-          </form>
-        </ScrollArea>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <ExtendedGuestFormFields
+            formData={formData}
+            updateField={updateField}
+            existingPhoneNumbers={existingPhoneNumbers}
+            customerId={customer?.id}
+            connections={connections}
+            importantDates={importantDates}
+            onConnectionsChange={setConnections}
+            onImportantDatesChange={setImportantDates}
+            preferences={preferences}
+            onPreferencesChange={handlePreferencesChange}
+          />
+          
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Updating...' : 'Update Guest'}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

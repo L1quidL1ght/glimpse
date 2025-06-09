@@ -1,0 +1,90 @@
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { X, Plus, Users } from 'lucide-react';
+import CustomerAutocomplete from './CustomerAutocomplete';
+
+interface Connection {
+  name: string;
+  relationship: string;
+}
+
+interface ConnectionsManagerProps {
+  connections: Connection[];
+  onConnectionsChange: (connections: Connection[]) => void;
+  excludeCustomerId?: string;
+}
+
+const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
+  connections,
+  onConnectionsChange,
+  excludeCustomerId
+}) => {
+  const [selectedCustomer, setSelectedCustomer] = useState('');
+  const [relationship, setRelationship] = useState('');
+
+  const addConnection = () => {
+    if (selectedCustomer.trim() && relationship.trim()) {
+      const newConnection = {
+        name: selectedCustomer.trim(),
+        relationship: relationship.trim()
+      };
+      
+      if (!connections.some(conn => conn.name === newConnection.name)) {
+        onConnectionsChange([...connections, newConnection]);
+        setSelectedCustomer('');
+        setRelationship('');
+      }
+    }
+  };
+
+  const removeConnection = (index: number) => {
+    onConnectionsChange(connections.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Users className="w-4 h-4 text-primary" />
+        <label className="text-sm font-medium text-foreground">Connections</label>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <CustomerAutocomplete
+          value={selectedCustomer}
+          onChange={setSelectedCustomer}
+          placeholder="Select customer..."
+          excludeCustomerId={excludeCustomerId}
+        />
+        <Input
+          value={relationship}
+          onChange={(e) => setRelationship(e.target.value)}
+          placeholder="Relationship (e.g., spouse, friend)"
+          onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addConnection())}
+        />
+        <Button type="button" variant="outline" size="sm" onClick={addConnection}>
+          <Plus className="w-4 h-4" />
+        </Button>
+      </div>
+      
+      <div className="flex flex-wrap gap-2">
+        {connections.map((connection, index) => (
+          <Badge key={index} variant="secondary" className="flex items-center gap-1">
+            {connection.name} ({connection.relationship})
+            <button
+              type="button"
+              onClick={() => removeConnection(index)}
+              className="ml-1 hover:bg-black/20 rounded-full p-0.5"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </Badge>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default ConnectionsManager;
