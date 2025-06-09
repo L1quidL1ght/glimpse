@@ -2,13 +2,16 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { User, Calendar } from 'lucide-react';
+import { User, Calendar, Crown, Star } from 'lucide-react';
 
 interface ProfileCardProps {
   customer: any;
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ customer }) => {
+  const has333Club = customer.tags?.includes('333 Club');
+  const hasVIP = customer.tags?.includes('VIP');
+
   return (
     <Card className="p-6 bg-card border border-border">
       <div className="flex flex-col items-center text-center space-y-4">
@@ -17,9 +20,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ customer }) => {
           <User className="w-12 h-12 text-primary" />
         </div>
 
-        {/* Name and Basic Info */}
+        {/* Name with Icons */}
         <div className="space-y-2">
-          <h2 className="text-xl font-bold text-foreground">{customer.name}</h2>
+          <div className="flex items-center gap-2 justify-center">
+            <h2 className="text-xl font-bold text-foreground">{customer.name}</h2>
+            {has333Club && <Crown className="w-5 h-5" style={{ color: 'gold' }} />}
+            {hasVIP && <Star className="w-5 h-5" style={{ color: 'gold' }} />}
+          </div>
           <div className="space-y-1 text-sm text-muted-foreground">
             <div>{customer.email}</div>
             <div>{customer.phone}</div>

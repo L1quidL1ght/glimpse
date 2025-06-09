@@ -1,0 +1,90 @@
+
+import React from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { UtensilsCrossed } from 'lucide-react';
+
+interface OrderHistoryProps {
+  visits: any[];
+}
+
+const OrderHistory: React.FC<OrderHistoryProps> = ({ visits }) => {
+  return (
+    <Card className="p-6 bg-card border border-border">
+      <div className="flex items-center gap-2 mb-4">
+        <UtensilsCrossed className="w-5 h-5" style={{ color: 'hsl(var(--success))' }} />
+        <h3 className="font-semibold text-foreground">Order History</h3>
+      </div>
+      <div className="space-y-4">
+        {visits.map((visit: any, index: number) => (
+          <div key={index} className="p-4 bg-muted rounded-lg">
+            <div className="flex justify-between items-start mb-3">
+              <div className="font-medium text-foreground">
+                {new Date(visit.date).toLocaleDateString()}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Party of {visit.party} • {visit.table}
+              </div>
+            </div>
+            
+            {visit.orders && (
+              <div className="space-y-3">
+                {visit.orders.appetizers && visit.orders.appetizers.length > 0 && (
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Appetizers</div>
+                    <div className="flex flex-wrap gap-1">
+                      {visit.orders.appetizers.map((item: string, i: number) => (
+                        <Badge key={i} variant="outline" className="text-xs bg-muted/50">{item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {visit.orders.entrees && visit.orders.entrees.length > 0 && (
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Main Entrees</div>
+                    <div className="flex flex-wrap gap-1">
+                      {visit.orders.entrees.map((item: string, i: number) => (
+                        <Badge key={i} variant="outline" className="text-xs bg-muted/50">{item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {visit.orders.cocktails && visit.orders.cocktails.length > 0 && (
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Cocktails</div>
+                    <div className="flex flex-wrap gap-1">
+                      {visit.orders.cocktails.map((item: string, i: number) => (
+                        <Badge key={i} variant="outline" className="text-xs bg-muted/50">{item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {visit.orders.desserts && visit.orders.desserts.length > 0 && (
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Desserts</div>
+                    <div className="flex flex-wrap gap-1">
+                      {visit.orders.desserts.map((item: string, i: number) => (
+                        <Badge key={i} variant="outline" className="text-xs bg-muted/50">{item}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {visit.notes && (
+              <div className="text-sm text-muted-foreground mt-2 pt-2 border-t border-border">
+                {visit.notes}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+};
+
+export default OrderHistory;

@@ -19,6 +19,7 @@ const CustomerDashboard = () => {
       phone: '(555) 123-4567',
       avatar: '/placeholder.svg',
       lastVisit: '2024-06-05',
+      tags: ['VIP', '333 Club'],
       totalVisits: 12,
       favoriteTable: 'Table 7',
       tablePreferences: ['Window seating', 'Quiet area', 'Corner booth'],
@@ -35,8 +36,30 @@ const CustomerDashboard = () => {
         { id: 2, name: 'Michael Johnson', relationship: 'Husband' }
       ],
       visits: [
-        { date: '2024-06-05', party: 2, table: 'Table 7', notes: 'Celebrated anniversary' },
-        { date: '2024-05-20', party: 4, table: 'Table 12', notes: 'Business dinner' }
+        { 
+          date: '2024-06-05', 
+          party: 2, 
+          table: 'Table 7', 
+          notes: 'Celebrated anniversary',
+          orders: {
+            appetizers: ['Truffle Arancini', 'Burrata'],
+            entrees: ['Ribeye Steak', 'Pan-Seared Halibut'],
+            cocktails: ['Moscow Mule', 'Aperol Spritz'],
+            desserts: ['Chocolate Tart', 'Tiramisu']
+          }
+        },
+        { 
+          date: '2024-05-20', 
+          party: 4, 
+          table: 'Table 12', 
+          notes: 'Business dinner',
+          orders: {
+            appetizers: ['Oysters', 'Charcuterie'],
+            entrees: ['Lamb Chops', 'Salmon', 'Duck Breast', 'Vegetarian Risotto'],
+            cocktails: ['Old Fashioned', 'Negroni'],
+            desserts: ['Cheesecake']
+          }
+        }
       ],
       notes: 'Prefers window seating. Always orders dessert. Very particular about wine pairings and likes to try new cocktails.',
       importantNotables: ['VIP client', 'Wine connoisseur', 'Prefers romantic atmosphere', 'Always celebrates special occasions here']
@@ -48,6 +71,7 @@ const CustomerDashboard = () => {
       phone: '(555) 123-4568',
       avatar: '/placeholder.svg',
       lastVisit: '2024-06-05',
+      tags: ['VIP'],
       totalVisits: 12,
       favoriteTable: 'Table 7',
       tablePreferences: ['Bar seating', 'High-top tables'],
@@ -63,7 +87,18 @@ const CustomerDashboard = () => {
         { id: 1, name: 'Sarah Johnson', relationship: 'Wife' }
       ],
       visits: [
-        { date: '2024-06-05', party: 2, table: 'Table 7', notes: 'Celebrated anniversary' }
+        { 
+          date: '2024-06-05', 
+          party: 2, 
+          table: 'Table 7', 
+          notes: 'Celebrated anniversary',
+          orders: {
+            appetizers: ['Truffle Arancini'],
+            entrees: ['Ribeye Steak'],
+            cocktails: ['Old Fashioned'],
+            desserts: ['Chocolate Tart']
+          }
+        }
       ],
       notes: 'Enjoys wine pairings. Regular customer. Often orders multiple courses and likes to discuss wine selections with sommelier.',
       importantNotables: ['Business professional', 'Whiskey enthusiast', 'Enjoys detailed wine discussions', 'Generous tipper']
