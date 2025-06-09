@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Search, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import Logo from '@/components/Logo';
 import GuestListItem from '@/components/GuestListItem';
 import CustomerProfile from '@/components/CustomerProfile';
+import AddGuestDialog from '@/components/AddGuestDialog';
 
 const CustomerDashboard = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   // Mock customer data
   const customers = [
@@ -111,6 +112,12 @@ const CustomerDashboard = () => {
     customer.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleGuestAdded = () => {
+    // In a real app, you would refresh the customer list here
+    console.log('Guest added/updated - refresh list');
+    setShowAddDialog(false);
+  };
+
   if (selectedCustomer) {
     return (
       <CustomerProfile 
@@ -134,6 +141,7 @@ const CustomerDashboard = () => {
             <Button 
               size="icon" 
               className="bg-primary hover:bg-primary/90"
+              onClick={() => setShowAddDialog(true)}
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -167,6 +175,12 @@ const CustomerDashboard = () => {
             <p className="text-muted-foreground text-lg">No guests found matching your search.</p>
           </div>
         )}
+
+        <AddGuestDialog
+          open={showAddDialog}
+          onOpenChange={setShowAddDialog}
+          onGuestAdded={handleGuestAdded}
+        />
       </div>
     </div>
   );
