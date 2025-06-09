@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { UtensilsCrossed } from 'lucide-react';
+import { UtensilsCrossed, Calendar, Users, MapPin } from 'lucide-react';
 
 interface OrderHistoryProps {
   visits: any[];
@@ -13,22 +13,38 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ visits }) => {
     <Card className="p-6 bg-card border border-border">
       <div className="flex items-center gap-2 mb-4">
         <UtensilsCrossed className="w-5 h-5" style={{ color: 'hsl(var(--success))' }} />
-        <h3 className="font-semibold text-foreground">Order History</h3>
+        <h3 className="font-semibold text-foreground">Visit & Order History</h3>
       </div>
       <div className="space-y-4">
         {visits.map((visit: any, index: number) => (
           <div key={index} className="p-4 bg-muted rounded-lg">
-            <div className="flex justify-between items-start mb-3">
-              <div className="font-medium text-foreground">
-                {new Date(visit.date).toLocaleDateString()}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Party of {visit.party} • {visit.table}
+            {/* Visit Info Header */}
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-3 border-b border-border">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  <span className="font-medium text-foreground">
+                    {new Date(visit.date).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    Party of {visit.party}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {visit.table}
+                  </span>
+                </div>
               </div>
             </div>
             
+            {/* Order Details */}
             {visit.orders && (
-              <div className="space-y-3">
+              <div className="space-y-3 mb-3">
                 {visit.orders.appetizers && visit.orders.appetizers.length > 0 && (
                   <div>
                     <div className="text-xs font-medium text-muted-foreground mb-1">Appetizers</div>
@@ -75,9 +91,10 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ visits }) => {
               </div>
             )}
             
+            {/* Visit Notes */}
             {visit.notes && (
-              <div className="text-sm text-muted-foreground mt-2 pt-2 border-t border-border">
-                {visit.notes}
+              <div className="text-sm text-muted-foreground pt-2 border-t border-border">
+                <span className="font-medium">Notes: </span>{visit.notes}
               </div>
             )}
           </div>
