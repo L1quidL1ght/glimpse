@@ -7,12 +7,13 @@ export const usePreferenceOptions = () => {
     queryKey: ['food-preferences'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('food_preference_options')
-        .select('name')
-        .order('name');
+        .from('preference_options')
+        .select('preference_text')
+        .eq('category', 'food')
+        .order('usage_count', { ascending: false });
       
       if (error) throw error;
-      return data.map(item => item.name);
+      return data.map(item => item.preference_text);
     },
   });
 
@@ -20,12 +21,13 @@ export const usePreferenceOptions = () => {
     queryKey: ['wine-preferences'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('wine_preference_options')
-        .select('name')
-        .order('name');
+        .from('preference_options')
+        .select('preference_text')
+        .eq('category', 'wine')
+        .order('usage_count', { ascending: false });
       
       if (error) throw error;
-      return data.map(item => item.name);
+      return data.map(item => item.preference_text);
     },
   });
 
@@ -33,12 +35,13 @@ export const usePreferenceOptions = () => {
     queryKey: ['cocktail-preferences'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('cocktail_preference_options')
-        .select('name')
-        .order('name');
+        .from('preference_options')
+        .select('preference_text')
+        .eq('category', 'cocktail')
+        .order('usage_count', { ascending: false });
       
       if (error) throw error;
-      return data.map(item => item.name);
+      return data.map(item => item.preference_text);
     },
   });
 
@@ -46,12 +49,13 @@ export const usePreferenceOptions = () => {
     queryKey: ['spirits-preferences'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('spirits_preference_options')
-        .select('name')
-        .order('name');
+        .from('preference_options')
+        .select('preference_text')
+        .eq('category', 'spirits')
+        .order('usage_count', { ascending: false });
       
       if (error) throw error;
-      return data.map(item => item.name);
+      return data.map(item => item.preference_text);
     },
   });
 

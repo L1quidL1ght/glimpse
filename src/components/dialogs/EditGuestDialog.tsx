@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -9,20 +9,42 @@ import GuestFormFields from '@/components/forms/GuestFormFields';
 import PreferencesSections from '@/components/forms/PreferencesSections';
 import { useGuestForm } from '@/hooks/useGuestForm';
 
-interface AddGuestDialogProps {
+interface EditGuestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onGuestAdded: () => void;
+  onGuestUpdated: () => void;
+  customer: any;
 }
 
-const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
+const EditGuestDialog: React.FC<EditGuestDialogProps> = ({
   open,
   onOpenChange,
-  onGuestAdded
+  onGuestUpdated,
+  customer
 }) => {
   const { toast } = useToast();
   const { formData, updateField, resetForm } = useGuestForm();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // Populate form with existing customer data
+  useEffect(() => {
+    if (customer && open) {
+      updateField('name', customer.name || '');
+      updateField('email', customer.email || '');
+      updateField('phone', customer.phone || '');
+      updateField('tags', customer.tags || []);
+      updateField('tablePreferences', customer.tablePreferences || []);
+      updateField('foodPreferences', customer.foodPreferences || []);
+      updateField('winePreferences', customer.winePreferences || []);
+      updateField('cocktailPreferences', customer.cocktailPreferences || []);
+      updateField('spiritsPreferences', customer.spiritsPreferences || []);
+      updateField('allergies', customer.allergies || []);
+      updateField('importantDates', customer.importantDates || []);
+      updateField('connections', customer.connections || []);
+      updateField('notes', customer.notes || '');
+      updateField('importantNotables', customer.importantNotables || []);
+    }
+  }, [customer, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,198 +61,118 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Insert customer
-      const { data: customer, error: customerError } = await supabase
+      // Update customer basic info
+      const { error: customerError } = await supabase
         .from('customers')
-        .insert({
+        .update({
           name: formData.name.trim(),
           email: formData.email.trim() || null,
           phone: formData.phone.trim() || null,
         })
-        .select()
-        .single();
+        .eq('id', customer.id);
 
       if (customerError) throw customerError;
 
-      // Insert tags
+      // Delete existing related data and re-insert
+      await supabase.from('customer_tags').delete().eq('customer_id', customer.id);
+      await supabase.from('table_preferences').delete().eq('customer_id', customer.id);
+      await supabase.from('food_preferences').delete().eq('customer_id', customer.id);
+      await supabase.from('wine_preferences').delete().eq('customer_id', customer.id);
+      await supabase.from('cocktail_preferences').delete().eq('customer_id', customer.id);
+      await supabase.from('spirits_preferences').delete().eq('customer_id', customer.id);
+      await supabase.from('allergies').delete().eq('customer_id', customer.id);
+      await supabase.from('important_dates').delete().eq('customer_id', customer.id);
+      await supabase.from('important_notables').delete().eq('customer_id', customer.id);
+      await supabase.from('customer_notes').delete().eq('customer_id', customer.id);
+      await supabase.from('connections').delete().eq('customer_id', customer.id);
+
+      // Re-insert all the data (same logic as AddGuestDialog)
       if (formData.tags.length > 0) {
         const tagInserts = formData.tags.map(tag => ({
           customer_id: customer.id,
           tag_name: tag
         }));
-
-        const { error: tagsError } = await supabase
-          .from('customer_tags')
-          .insert(tagInserts);
-
-        if (tagsError) throw tagsError;
+        await supabase.from('customer_tags').insert(tagInserts);
       }
 
-      // Insert table preferences
       if (formData.tablePreferences.length > 0) {
         const tablePrefs = formData.tablePreferences.map(pref => ({
           customer_id: customer.id,
           preference: pref
         }));
-
-        const { error: tablePrefError } = await supabase
-          .from('table_preferences')
-          .insert(tablePrefs);
-
-        if (tablePrefError) throw tablePrefError;
+        await supabase.from('table_preferences').insert(tablePrefs);
       }
 
-      // Insert food preferences
       if (formData.foodPreferences.length > 0) {
         const foodPrefs = formData.foodPreferences.map(pref => ({
           customer_id: customer.id,
           preference: pref.value,
           is_golden: pref.isGolden
         }));
-
-        const { error: foodPrefError } = await supabase
-          .from('food_preferences')
-          .insert(foodPrefs);
-
-        if (foodPrefError) throw foodPrefError;
-
-        // Update preference options for autocomplete
-        for (const pref of formData.foodPreferences) {
-          await supabase.rpc('upsert_preference_option', {
-            p_category: 'food',
-            p_preference_text: pref.value
-          });
-        }
+        await supabase.from('food_preferences').insert(foodPrefs);
       }
 
-      // Insert wine preferences
       if (formData.winePreferences.length > 0) {
         const winePrefs = formData.winePreferences.map(pref => ({
           customer_id: customer.id,
           preference: pref.value,
           is_golden: pref.isGolden
         }));
-
-        const { error: winePrefError } = await supabase
-          .from('wine_preferences')
-          .insert(winePrefs);
-
-        if (winePrefError) throw winePrefError;
-
-        // Update preference options for autocomplete
-        for (const pref of formData.winePreferences) {
-          await supabase.rpc('upsert_preference_option', {
-            p_category: 'wine',
-            p_preference_text: pref.value
-          });
-        }
+        await supabase.from('wine_preferences').insert(winePrefs);
       }
 
-      // Insert cocktail preferences
       if (formData.cocktailPreferences.length > 0) {
         const cocktailPrefs = formData.cocktailPreferences.map(pref => ({
           customer_id: customer.id,
           preference: pref.value,
           is_golden: pref.isGolden
         }));
-
-        const { error: cocktailPrefError } = await supabase
-          .from('cocktail_preferences')
-          .insert(cocktailPrefs);
-
-        if (cocktailPrefError) throw cocktailPrefError;
-
-        // Update preference options for autocomplete
-        for (const pref of formData.cocktailPreferences) {
-          await supabase.rpc('upsert_preference_option', {
-            p_category: 'cocktail',
-            p_preference_text: pref.value
-          });
-        }
+        await supabase.from('cocktail_preferences').insert(cocktailPrefs);
       }
 
-      // Insert spirits preferences
       if (formData.spiritsPreferences.length > 0) {
         const spiritsPrefs = formData.spiritsPreferences.map(pref => ({
           customer_id: customer.id,
           preference: pref.value,
           is_golden: pref.isGolden
         }));
-
-        const { error: spiritsPrefError } = await supabase
-          .from('spirits_preferences')
-          .insert(spiritsPrefs);
-
-        if (spiritsPrefError) throw spiritsPrefError;
-
-        // Update preference options for autocomplete
-        for (const pref of formData.spiritsPreferences) {
-          await supabase.rpc('upsert_preference_option', {
-            p_category: 'spirits',
-            p_preference_text: pref.value
-          });
-        }
+        await supabase.from('spirits_preferences').insert(spiritsPrefs);
       }
 
-      // Insert allergies
       if (formData.allergies.length > 0) {
         const allergyInserts = formData.allergies.map(allergy => ({
           customer_id: customer.id,
           allergy: allergy
         }));
-
-        const { error: allergiesError } = await supabase
-          .from('allergies')
-          .insert(allergyInserts);
-
-        if (allergiesError) throw allergiesError;
+        await supabase.from('allergies').insert(allergyInserts);
       }
 
-      // Insert important dates
       if (formData.importantDates.length > 0) {
         const dateInserts = formData.importantDates.map(dateItem => ({
           customer_id: customer.id,
           event: dateItem.event,
           date: dateItem.date
         }));
-
-        const { error: datesError } = await supabase
-          .from('important_dates')
-          .insert(dateInserts);
-
-        if (datesError) throw datesError;
+        await supabase.from('important_dates').insert(dateInserts);
       }
 
-      // Insert important notables
       if (formData.importantNotables.length > 0) {
         const notableInserts = formData.importantNotables.map(notable => ({
           customer_id: customer.id,
           notable: notable
         }));
-
-        const { error: notablesError } = await supabase
-          .from('important_notables')
-          .insert(notableInserts);
-
-        if (notablesError) throw notablesError;
+        await supabase.from('important_notables').insert(notableInserts);
       }
 
-      // Insert notes
       if (formData.notes.trim()) {
-        const { error: notesError } = await supabase
-          .from('customer_notes')
-          .insert({
-            customer_id: customer.id,
-            note: formData.notes.trim()
-          });
-
-        if (notesError) throw notesError;
+        await supabase.from('customer_notes').insert({
+          customer_id: customer.id,
+          note: formData.notes.trim()
+        });
       }
 
-      // Handle connections
       if (formData.connections.length > 0) {
         for (const connection of formData.connections) {
-          // Find the connected customer by name
           const { data: connectedCustomer } = await supabase
             .from('customers')
             .select('id')
@@ -238,34 +180,28 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
             .single();
 
           if (connectedCustomer) {
-            const { error: connectionError } = await supabase
-              .from('connections')
-              .insert({
-                customer_id: customer.id,
-                connected_customer_id: connectedCustomer.id,
-                relationship: connection.relationship
-              });
-
-            if (connectionError) throw connectionError;
+            await supabase.from('connections').insert({
+              customer_id: customer.id,
+              connected_customer_id: connectedCustomer.id,
+              relationship: connection.relationship
+            });
           }
         }
       }
 
-      console.log('Guest added successfully:', customer);
-      
       resetForm();
-      onGuestAdded();
+      onGuestUpdated();
       onOpenChange(false);
       
       toast({
         title: "Success",
-        description: "Guest added successfully!",
+        description: "Guest updated successfully!",
       });
     } catch (error) {
-      console.error('Error adding guest:', error);
+      console.error('Error updating guest:', error);
       toast({
         title: "Error",
-        description: "Failed to add guest. Please try again.",
+        description: "Failed to update guest. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -277,7 +213,7 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Add New Guest</DialogTitle>
+          <DialogTitle>Edit Guest</DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="max-h-[70vh] pr-4">
@@ -299,7 +235,7 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
                 disabled={isSubmitting || !formData.name.trim()}
                 className="flex-1"
               >
-                {isSubmitting ? 'Adding...' : 'Add Guest'}
+                {isSubmitting ? 'Updating...' : 'Update Guest'}
               </Button>
             </div>
           </form>
@@ -309,4 +245,4 @@ const AddGuestDialog: React.FC<AddGuestDialogProps> = ({
   );
 };
 
-export default AddGuestDialog;
+export default EditGuestDialog;

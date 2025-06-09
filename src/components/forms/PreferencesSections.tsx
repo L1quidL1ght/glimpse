@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, X } from 'lucide-react';
 import PreferenceInput from './PreferenceInput';
+import CustomerAutocomplete from './CustomerAutocomplete';
 import { GuestFormData } from '@/hooks/useGuestForm';
 import { usePreferenceOptions } from '@/hooks/usePreferenceOptions';
 
@@ -90,11 +91,11 @@ const PreferencesSections: React.FC<PreferencesSectionsProps> = ({ formData, upd
       {/* Connections */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">Connections</label>
-        <div className="grid grid-cols-2 gap-2">
-          <Input
+        <div className="grid grid-cols-1 gap-2">
+          <CustomerAutocomplete
             value={currentConnection.name}
-            onChange={(e) => setCurrentConnection(prev => ({ ...prev, name: e.target.value }))}
-            placeholder="Connection name"
+            onChange={(name) => setCurrentConnection(prev => ({ ...prev, name }))}
+            placeholder="Select connection"
           />
           <Input
             value={currentConnection.relationship}
