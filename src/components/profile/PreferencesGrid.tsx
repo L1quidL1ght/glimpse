@@ -32,7 +32,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
       {/* Food Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <UtensilsCrossed className="w-5 h-5 text-primary" />
+          <UtensilsCrossed className="w-5 h-5" style={{ color: 'hsl(var(--success))' }} />
           <h3 className="font-semibold text-foreground">Food Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -45,7 +45,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
       {/* Wine Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <Wine className="w-5 h-5 text-primary" />
+          <Wine className="w-5 h-5" style={{ color: 'hsl(var(--info))' }} />
           <h3 className="font-semibold text-foreground">Wine Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -58,7 +58,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
       {/* Spirits Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <Wine className="w-5 h-5 text-primary" />
+          <Wine className="w-5 h-5" style={{ color: 'hsl(var(--info))' }} />
           <h3 className="font-semibold text-foreground">Spirits Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -71,7 +71,7 @@ const PreferencesGrid: React.FC<PreferencesGridProps> = ({ customer }) => {
       {/* Cocktail Preferences */}
       <Card className="p-6 bg-card border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <Wine className="w-5 h-5 text-primary" />
+          <Wine className="w-5 h-5" style={{ color: 'hsl(var(--info))' }} />
           <h3 className="font-semibold text-foreground">Cocktail Preferences</h3>
         </div>
         <div className="flex flex-wrap gap-2">

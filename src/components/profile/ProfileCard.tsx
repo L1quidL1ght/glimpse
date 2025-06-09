@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { User, Phone, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { User, Calendar } from 'lucide-react';
 
 interface ProfileCardProps {
   customer: any;
@@ -20,15 +21,15 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ customer }) => {
         <div className="space-y-2">
           <h2 className="text-xl font-bold text-foreground">{customer.name}</h2>
           <div className="space-y-1 text-sm text-muted-foreground">
-            <div className="flex items-center justify-center gap-2">
-              <User className="w-4 h-4" />
-              <span>{customer.email}</span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <Phone className="w-4 h-4" />
-              <span>{customer.phone}</span>
-            </div>
+            <div>{customer.email}</div>
+            <div>{customer.phone}</div>
           </div>
+        </div>
+
+        {/* Tags */}
+        <div className="flex gap-2 flex-wrap justify-center">
+          <Badge variant="secondary" className="bg-accent text-accent-foreground">VIP</Badge>
+          <Badge variant="outline" className="border-primary/30 text-primary">Regular</Badge>
         </div>
 
         {/* Quick Stats */}

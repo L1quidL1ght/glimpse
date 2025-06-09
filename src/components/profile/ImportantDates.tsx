@@ -11,7 +11,7 @@ const ImportantDates: React.FC<ImportantDatesProps> = ({ importantDates }) => {
   return (
     <Card className="p-6 bg-card border border-border">
       <div className="flex items-center gap-2 mb-4">
-        <Heart className="w-5 h-5 text-primary" />
+        <Heart className="w-5 h-5" style={{ color: 'hsl(var(--warning))' }} />
         <h3 className="font-semibold text-foreground">Important Dates</h3>
       </div>
       <div className="space-y-3">

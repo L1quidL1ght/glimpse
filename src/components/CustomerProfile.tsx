@@ -21,9 +21,10 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
         <ProfileHeader onBack={onBack} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Profile Card and Connections */}
-          <div className="lg:col-span-1">
+          {/* Left Column - Profile Card, Important Dates, and Connections */}
+          <div className="lg:col-span-1 space-y-6">
             <ProfileCard customer={customer} />
+            <ImportantDates importantDates={customer.importantDates} />
             <ConnectionsList connections={customer.connections} />
           </div>
 
@@ -31,7 +32,6 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({ customer, onBack, all
           <div className="lg:col-span-2 space-y-6">
             <PreferencesGrid customer={customer} />
             <SpecialNotes notes={customer.notes} />
-            <ImportantDates importantDates={customer.importantDates} />
             <VisitHistory visits={customer.visits} />
           </div>
         </div>
