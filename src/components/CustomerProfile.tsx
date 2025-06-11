@@ -10,7 +10,6 @@ import EditGuestDialog from '@/components/dialogs/EditGuestDialog';
 import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
 import NavigationHeader from '@/components/navigation/NavigationHeader';
 import ProfileCard from '@/components/profile/ProfileCard';
-import SearchHeader from '@/components/profile/SearchHeader';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
 
@@ -52,12 +51,6 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         />
 
         <div className="flex items-center justify-between mb-6">
-          <SearchHeader 
-            onBack={onBack} 
-            allCustomers={allCustomers}
-            onCustomerSelect={handleCustomerSelect}
-            currentCustomer={customer}
-          />
           {isAdmin && (
             <Button 
               onClick={() => setShowEditDialog(true)}
