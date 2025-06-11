@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,7 +13,7 @@ const Index = () => {
   const [passcode, setPasscode] = useState('');
 
   // Admin passcode - concealed from view
-  const ADMIN_PASSCODE = '3333';
+  const ADMIN_PASSCODE = '1234';
 
   const handleLogin = () => {
     if (passcode.length !== 4) {

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ const AdminLoginDialog: React.FC<AdminLoginDialogProps> = ({
   const { toast } = useToast();
 
   // Updated admin PIN
-  const ADMIN_PIN = '3333';
+  const ADMIN_PIN = '1234';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
