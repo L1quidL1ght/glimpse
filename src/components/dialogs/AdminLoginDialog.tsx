@@ -20,8 +20,8 @@ const AdminLoginDialog: React.FC<AdminLoginDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  // Simple 4-digit admin PIN - in production this should be more secure
-  const ADMIN_PIN = '1234';
+  // Updated admin PIN
+  const ADMIN_PIN = '3333';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, LogOut, UserPlus } from 'lucide-react';
+import { ArrowLeft, LogOut, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import Logo from '@/components/Logo';
@@ -22,15 +22,6 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   const { signOut } = useAuth();
   const { toast } = useToast();
   const [isSigningOut, setIsSigningOut] = useState(false);
-
-  const handleSwitchUser = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      // Navigate to main directory
-      window.location.href = '/dashboard';
-    }
-  };
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -78,15 +69,6 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
             Add Guest
           </Button>
         )}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSwitchUser}
-          className="flex items-center gap-2"
-        >
-          <Users className="w-4 h-4" />
-          Switch User
-        </Button>
         <Button
           variant="outline"
           size="sm"

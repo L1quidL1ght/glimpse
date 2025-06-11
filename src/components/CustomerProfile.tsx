@@ -7,6 +7,8 @@ import ImportantDates from '@/components/profile/ImportantDates';
 import ImportantNotables from '@/components/profile/ImportantNotables';
 import OrderHistory from '@/components/profile/OrderHistory';
 import EditGuestDialog from '@/components/dialogs/EditGuestDialog';
+import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
+import NavigationHeader from '@/components/navigation/NavigationHeader';
 import ProfileCard from '@/components/profile/ProfileCard';
 import SearchHeader from '@/components/profile/SearchHeader';
 import { Button } from '@/components/ui/button';
@@ -26,6 +28,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
   isAdmin = false 
 }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const handleCustomerSelect = (selectedCustomer: any) => {
     window.location.reload();
@@ -35,9 +38,19 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
     window.location.reload();
   };
 
+  const handleGuestAdded = () => {
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto p-6">
+        <NavigationHeader 
+          onBack={onBack}
+          showBackButton={true}
+          onAddGuest={() => setShowAddDialog(true)}
+        />
+
         <div className="flex items-center justify-between mb-6">
           <SearchHeader 
             onBack={onBack} 
@@ -85,6 +98,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
             customer={customer}
           />
         )}
+
+        <AddGuestDialog
+          open={showAddDialog}
+          onOpenChange={setShowAddDialog}
+          onGuestAdded={handleGuestAdded}
+        />
       </div>
     </div>
   );

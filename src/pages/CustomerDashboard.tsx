@@ -7,7 +7,6 @@ import CustomerProfile from '@/components/CustomerProfile';
 import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
 import BulkImportDialog from '@/components/dialogs/BulkImportDialog';
 import DuplicatePhoneDialog from '@/components/dialogs/DuplicatePhoneDialog';
-import AdminLoginDialog from '@/components/dialogs/AdminLoginDialog';
 import NavigationHeader from '@/components/navigation/NavigationHeader';
 import { Button } from '@/components/ui/button';
 import { UserCheck, Upload } from 'lucide-react';
@@ -28,8 +27,6 @@ const CustomerDashboard = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showBulkImportDialog, setShowBulkImportDialog] = useState(false);
   const [showDuplicateDialog, setShowDuplicateDialog] = useState(false);
-  const [showAdminDialog, setShowAdminDialog] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
 
   const handleCustomerSelect = (customer: any) => {
@@ -48,15 +45,6 @@ const CustomerDashboard = () => {
   const handleBulkImportComplete = () => {
     refetch();
     setShowBulkImportDialog(false);
-  };
-
-  const handleAdminLogin = () => {
-    setIsAdmin(true);
-    setShowAdminDialog(false);
-    toast({
-      title: "Admin Access Granted",
-      description: "You now have admin privileges"
-    });
   };
 
   const handleFixDuplicates = async () => {
@@ -94,7 +82,7 @@ const CustomerDashboard = () => {
         customer={selectedCustomer}
         onBack={handleBack}
         allCustomers={customers}
-        isAdmin={isAdmin}
+        isAdmin={true}
       />
     );
   }
@@ -109,36 +97,24 @@ const CustomerDashboard = () => {
         <div className="flex items-center justify-between mb-6">
           {/* Admin Controls */}
           <div className="flex items-center gap-2">
-            {isAdmin ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleFixDuplicates}
-                  className="flex items-center gap-2"
-                >
-                  <UserCheck className="w-4 h-4" />
-                  Fix Duplicates
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowBulkImportDialog(true)}
-                  className="flex items-center gap-2"
-                >
-                  <Upload className="w-4 h-4" />
-                  Bulk Import
-                </Button>
-              </>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAdminDialog(true)}
-              >
-                Admin
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleFixDuplicates}
+              className="flex items-center gap-2"
+            >
+              <UserCheck className="w-4 h-4" />
+              Fix Duplicates
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowBulkImportDialog(true)}
+              className="flex items-center gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Bulk Import
+            </Button>
           </div>
         </div>
 
@@ -155,7 +131,7 @@ const CustomerDashboard = () => {
           <GuestList
             customers={customers}
             onCustomerSelect={handleCustomerSelect}
-            isAdmin={isAdmin}
+            isAdmin={true}
             onCustomerDeleted={refetch}
           />
         )}
@@ -176,12 +152,6 @@ const CustomerDashboard = () => {
           open={showDuplicateDialog}
           onOpenChange={setShowDuplicateDialog}
           onResolved={handleDuplicatesResolved}
-        />
-
-        <AdminLoginDialog
-          open={showAdminDialog}
-          onOpenChange={setShowAdminDialog}
-          onAdminLogin={handleAdminLogin}
         />
       </div>
     </div>
