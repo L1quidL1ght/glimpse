@@ -7,8 +7,10 @@ import GuestList from '@/components/dashboard/GuestList';
 import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
 import AdminLoginDialog from '@/components/dialogs/AdminLoginDialog';
 import ReservationsView from '@/components/reservations/ReservationsView';
+import GuestFilters from '@/components/dashboard/GuestFilters';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCustomerDashboard } from '@/hooks/useCustomerDashboard';
+import { useGuestFilters } from '@/hooks/useGuestFilters';
 
 const CustomerDashboard = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -24,7 +26,15 @@ const CustomerDashboard = () => {
     setSelectedCustomer,
     loading,
     handleGuestAdded,
+    refetch
   } = useCustomerDashboard();
+
+  const {
+    filteredCustomers,
+    activeFilters,
+    handleFilterChange,
+    clearFilters
+  } = useGuestFilters(customers);
 
   const handleAdminLogin = () => {
     setIsAdmin(true);
@@ -47,6 +57,7 @@ const CustomerDashboard = () => {
         <DashboardHeader 
           onAddGuest={() => setShowAddDialog(true)}
           isAdmin={isAdmin}
+          onAdminLogin={() => setShowAdminDialog(true)}
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
@@ -61,9 +72,21 @@ const CustomerDashboard = () => {
               onSearchChange={setSearchTerm}
             />
             
+            <GuestFilters 
+              onFilterChange={handleFilterChange}
+              activeFilters={activeFilters}
+              onClearFilters={clearFilters}
+            />
+            
             <GuestList 
-              customers={customers}
+              customers={filteredCustomers.filter(customer => 
+                customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                customer.phone?.includes(searchTerm)
+              )}
               onCustomerSelect={setSelectedCustomer}
+              isAdmin={isAdmin}
+              onCustomerDeleted={refetch}
             />
           </TabsContent>
 

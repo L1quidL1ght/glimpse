@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Camera, Upload } from 'lucide-react';
+import { Camera, Upload, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
@@ -10,7 +10,7 @@ interface ProfilePictureUploadProps {
   currentAvatarUrl?: string | null;
   customerName: string;
   customerId: string;
-  onAvatarUpdated: (newUrl: string) => void;
+  onAvatarUpdated: (newUrl: string | null) => void;
   isEditing?: boolean;
 }
 
@@ -22,6 +22,7 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
   isEditing = false
 }) => {
   const [uploading, setUploading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
 
   const getInitials = (name: string) => {
@@ -80,6 +81,48 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
     }
   };
 
+  const deleteAvatar = async () => {
+    try {
+      setDeleting(true);
+
+      // Extract filename from current URL
+      if (currentAvatarUrl) {
+        const urlParts = currentAvatarUrl.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+
+        // Delete from storage
+        const { error: deleteError } = await supabase.storage
+          .from('profile-pictures')
+          .remove([fileName]);
+
+        if (deleteError) throw deleteError;
+      }
+
+      // Update the customer record to remove avatar URL
+      const { error: updateError } = await supabase
+        .from('customers')
+        .update({ avatar_url: null })
+        .eq('id', customerId);
+
+      if (updateError) throw updateError;
+
+      onAvatarUpdated(null);
+      toast({
+        title: "Success",
+        description: "Profile picture removed successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting avatar:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove profile picture",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -112,32 +155,49 @@ const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       
       {isEditing && (
         <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <label htmlFor="avatar-upload" className="cursor-pointer">
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-              disabled={uploading}
-            />
-            <Button
-              size="sm"
-              variant="secondary"
-              className="bg-white/90 text-black hover:bg-white"
-              disabled={uploading}
-              asChild
-            >
-              <span className="flex items-center gap-1">
-                {uploading ? (
+          <div className="flex gap-1">
+            <label htmlFor="avatar-upload" className="cursor-pointer">
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                disabled={uploading || deleting}
+              />
+              <Button
+                size="sm"
+                variant="secondary"
+                className="bg-white/90 text-black hover:bg-white p-2"
+                disabled={uploading || deleting}
+                asChild
+              >
+                <span className="flex items-center">
+                  {uploading ? (
+                    <Upload className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4" />
+                  )}
+                </span>
+              </Button>
+            </label>
+            
+            {currentAvatarUrl && (
+              <Button
+                size="sm"
+                variant="destructive"
+                className="p-2"
+                disabled={uploading || deleting}
+                onClick={deleteAvatar}
+              >
+                {deleting ? (
                   <Upload className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Camera className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" />
                 )}
-                {uploading ? 'Uploading...' : 'Upload'}
-              </span>
-            </Button>
-          </label>
+              </Button>
+            )}
+          </div>
         </div>
       )}
     </div>

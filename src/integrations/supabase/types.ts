@@ -565,6 +565,42 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_guests_by_anniversary_month: {
+        Args: { month_num: number }
+        Returns: {
+          id: string
+          name: string
+          email: string
+          phone: string
+          avatar_url: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      get_guests_by_birthday_month: {
+        Args: { month_num: number }
+        Returns: {
+          id: string
+          name: string
+          email: string
+          phone: string
+          avatar_url: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      get_guests_by_tag: {
+        Args: { tag_name: string }
+        Returns: {
+          id: string
+          name: string
+          email: string
+          phone: string
+          avatar_url: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
       upsert_preference_option: {
         Args: { p_category: string; p_preference_text: string }
         Returns: string

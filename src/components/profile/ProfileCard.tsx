@@ -19,7 +19,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 }) => {
   const [avatarUrl, setAvatarUrl] = useState(customer.avatar_url);
 
-  const handleAvatarUpdated = (newUrl: string) => {
+  const handleAvatarUpdated = (newUrl: string | null) => {
     setAvatarUrl(newUrl);
     if (onCustomerUpdated) {
       onCustomerUpdated();
@@ -66,10 +66,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         </div>
 
         {/* Last Visit */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="w-4 h-4" />
-          <span>Last visit: {new Date(customer.lastVisit).toLocaleDateString()}</span>
-        </div>
+        {customer.lastVisit && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="w-4 h-4" />
+            <span>Last visit: {new Date(customer.lastVisit).toLocaleDateString()}</span>
+          </div>
+        )}
       </div>
     </Card>
   );

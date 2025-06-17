@@ -1,28 +1,46 @@
 
 import React from 'react';
-import { Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Plus, UserCog } from 'lucide-react';
 import Logo from '@/components/Logo';
 
 interface DashboardHeaderProps {
   onAddGuest: () => void;
-  isAdmin?: boolean;
+  isAdmin: boolean;
+  onAdminLogin?: () => void;
 }
 
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onAddGuest, isAdmin = false }) => {
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
+  onAddGuest, 
+  isAdmin,
+  onAdminLogin 
+}) => {
   return (
-    <div className="flex items-center justify-between mb-8">
-      <Logo />
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <Logo />
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Guest Management</h1>
+          <p className="text-muted-foreground">Manage your restaurant guests and reservations</p>
+        </div>
+      </div>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon">
-          <Settings className="w-4 h-4" />
-        </Button>
+        {!isAdmin && onAdminLogin && (
+          <Button
+            variant="outline"
+            onClick={onAdminLogin}
+            className="flex items-center gap-2"
+          >
+            <UserCog className="w-4 h-4" />
+            Admin Access
+          </Button>
+        )}
         <Button 
-          size="icon" 
-          className="bg-primary hover:bg-primary/90"
           onClick={onAddGuest}
+          className="flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
+          Add Guest
         </Button>
       </div>
     </div>
