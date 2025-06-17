@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, addDays, subDays } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { addDays, subDays } from 'date-fns';
 import { useReservations, type Reservation } from '@/hooks/useReservations';
 import { useReservationFilters } from '@/hooks/useReservationFilters';
 import ReservationDialog from './ReservationDialog';
