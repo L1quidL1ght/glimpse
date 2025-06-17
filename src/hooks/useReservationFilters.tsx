@@ -26,11 +26,11 @@ export const useReservationFilters = (
     const dayReservations = reservations.filter(r => r.reservation_date === dateStr);
     
     return {
-      total: dayReservations.length,
-      confirmed: dayReservations.filter(r => r.status === 'confirmed').length,
-      completed: dayReservations.filter(r => r.status === 'completed').length,
-      cancelled: dayReservations.filter(r => r.status === 'cancelled').length,
-      no_show: dayReservations.filter(r => r.status === 'no_show').length,
+      total: dayReservations.reduce((sum, r) => sum + r.party_size, 0),
+      confirmed: dayReservations.filter(r => r.status === 'confirmed').reduce((sum, r) => sum + r.party_size, 0),
+      completed: dayReservations.filter(r => r.status === 'completed').reduce((sum, r) => sum + r.party_size, 0),
+      cancelled: dayReservations.filter(r => r.status === 'cancelled').reduce((sum, r) => sum + r.party_size, 0),
+      no_show: dayReservations.filter(r => r.status === 'no_show').reduce((sum, r) => sum + r.party_size, 0),
     };
   }, [reservations, selectedDate]);
 
