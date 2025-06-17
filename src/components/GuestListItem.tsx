@@ -23,19 +23,6 @@ interface GuestListItemProps {
 }
 
 const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
-  const getTagVariant = (tag: string) => {
-    switch (tag) {
-      case 'VIP':
-        return 'default';
-      case '333 Club':
-        return 'secondary';
-      case 'Regular':
-        return 'outline';
-      default:
-        return 'outline';
-    }
-  };
-
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -90,10 +77,10 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
             )}
           </div>
           
-          {/* Tag badges with icons - show important tags only */}
+          {/* Tag badges with icons - all using secondary variant and rounded-md */}
           <div className="flex items-center gap-2 mt-1">
             {filteredTags.map((tag, index) => (
-              <Badge key={index} variant={getTagVariant(tag)} className="text-xs flex items-center gap-1">
+              <Badge key={index} variant="secondary" className="text-xs flex items-center gap-1 rounded-md">
                 <TagIcon tagName={tag} className="w-3 h-3" />
                 {tag}
               </Badge>
