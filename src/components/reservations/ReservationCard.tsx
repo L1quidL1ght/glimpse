@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Edit, Trash2, Check, Table, Note } from 'lucide-react';
+import { Users, Edit, Trash2, Check, Table, StickyNote } from 'lucide-react';
 import { type Reservation } from '@/hooks/useReservations';
 
 interface ReservationCardProps {
@@ -72,7 +72,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
                 {/* Special Requests - now on the same line */}
                 {reservation.special_requests && (
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Note className="w-4 h-4" />
+                    <StickyNote className="w-4 h-4" />
                     <span className="font-medium">Special: </span>
                     <span>{reservation.special_requests}</span>
                   </div>
