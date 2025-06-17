@@ -34,7 +34,7 @@ const ConnectionsSection: React.FC<ConnectionsSectionProps> = ({ formData, updat
         <div className="grid grid-cols-1 gap-2">
           <CustomerAutocomplete
             value={currentConnection.name}
-            onChange={(name) => setCurrentConnection(prev => ({ ...prev, name }))}
+            onSelect={(name) => setCurrentConnection(prev => ({ ...prev, name }))}
             placeholder="Select connection"
           />
           <Input

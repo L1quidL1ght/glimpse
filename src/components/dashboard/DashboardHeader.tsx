@@ -6,9 +6,10 @@ import Logo from '@/components/Logo';
 
 interface DashboardHeaderProps {
   onAddGuest: () => void;
+  isAdmin?: boolean;
 }
 
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onAddGuest }) => {
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onAddGuest, isAdmin = false }) => {
   return (
     <div className="flex items-center justify-between mb-8">
       <Logo />

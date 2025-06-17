@@ -62,7 +62,7 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <CustomerAutocomplete
           value={selectedCustomer}
-          onChange={setSelectedCustomer}
+          onSelect={setSelectedCustomer}
           placeholder="Select guest..."
           excludeCustomerId={excludeCustomerId}
         />
