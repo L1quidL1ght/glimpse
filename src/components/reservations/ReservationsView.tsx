@@ -61,7 +61,7 @@ const ReservationsView: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4">
         <div>
-          <h2 className="text-xl font-semibold">Reservations</h2>
+          <h2 className="text-2xl font-bold">Reservations</h2>
           
         </div>
         <Button onClick={() => setShowDialog(true)} className="flex items-center gap-2 h-12 px-6 text-base font-semibold">
