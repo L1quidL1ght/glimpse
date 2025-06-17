@@ -60,13 +60,18 @@ const CustomerDashboard = () => {
           onAdminLogin={() => setShowAdminDialog(true)}
         />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="guests">Guest List</TabsTrigger>
             <TabsTrigger value="reservations">Reservations</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="guests" className="space-y-6">
+          <TabsContent value="guests" className="space-y-6 mt-8">
+            <div className="space-y-2">
+              <h2 className="text-xl font-semibold text-foreground">Guest Directory</h2>
+              <p className="text-muted-foreground">Search and filter your guest database</p>
+            </div>
+            
             <DashboardSearch 
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
@@ -90,7 +95,7 @@ const CustomerDashboard = () => {
             />
           </TabsContent>
 
-          <TabsContent value="reservations">
+          <TabsContent value="reservations" className="mt-8">
             <ReservationsView />
           </TabsContent>
         </Tabs>
