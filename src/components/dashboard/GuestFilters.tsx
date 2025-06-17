@@ -36,6 +36,15 @@ const GuestFilters: React.FC<GuestFiltersProps> = ({
 
   const hasActiveFilters = Object.keys(activeFilters).length > 0;
 
+  const handleFilterValueChange = (filterType: string, value: string) => {
+    // If the value is our "clear" value, pass null to clear the filter
+    if (value === 'clear-all') {
+      onFilterChange(filterType, null);
+    } else {
+      onFilterChange(filterType, value);
+    }
+  };
+
   return (
     <Card className="p-4">
       <div className="flex items-center gap-4 mb-4">
@@ -60,14 +69,14 @@ const GuestFilters: React.FC<GuestFiltersProps> = ({
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">By Tag</label>
           <Select
-            value={activeFilters.tag || ''}
-            onValueChange={(value) => onFilterChange('tag', value || null)}
+            value={activeFilters.tag || 'clear-all'}
+            onValueChange={(value) => handleFilterValueChange('tag', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select tag" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Tags</SelectItem>
+              <SelectItem value="clear-all">All Tags</SelectItem>
               {tags.map((tag) => (
                 <SelectItem key={tag} value={tag}>
                   {tag}
@@ -81,14 +90,14 @@ const GuestFilters: React.FC<GuestFiltersProps> = ({
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">Birthday Month</label>
           <Select
-            value={activeFilters.birthdayMonth || ''}
-            onValueChange={(value) => onFilterChange('birthdayMonth', value || null)}
+            value={activeFilters.birthdayMonth || 'clear-all'}
+            onValueChange={(value) => handleFilterValueChange('birthdayMonth', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select month" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Months</SelectItem>
+              <SelectItem value="clear-all">All Months</SelectItem>
               {months.map((month) => (
                 <SelectItem key={month.value} value={month.value}>
                   {month.label}
@@ -102,14 +111,14 @@ const GuestFilters: React.FC<GuestFiltersProps> = ({
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">Anniversary Month</label>
           <Select
-            value={activeFilters.anniversaryMonth || ''}
-            onValueChange={(value) => onFilterChange('anniversaryMonth', value || null)}
+            value={activeFilters.anniversaryMonth || 'clear-all'}
+            onValueChange={(value) => handleFilterValueChange('anniversaryMonth', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select month" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Months</SelectItem>
+              <SelectItem value="clear-all">All Months</SelectItem>
               {months.map((month) => (
                 <SelectItem key={month.value} value={month.value}>
                   {month.label}
