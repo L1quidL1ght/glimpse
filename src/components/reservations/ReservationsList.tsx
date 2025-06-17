@@ -75,7 +75,7 @@ const ReservationsList: React.FC<ReservationsListProps> = ({
       {/* Completed Reservations Section */}
       {completedReservations.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-foreground">
+          <h3 className="text-xl font-semibold text-muted-foreground">
             Completed ({completedReservations.length})
           </h3>
           <div className="grid gap-4 opacity-60">
