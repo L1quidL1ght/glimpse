@@ -52,7 +52,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
             
             {/* Guest Info - Using CSS Grid for consistent alignment */}
             <div className="flex-1">
-              <div className="grid grid-cols-4 gap-4 items-center">
+              <div className="grid grid-cols-4 gap-2 items-center">
                 {/* Guest Name - Fixed width */}
                 <div className="min-w-[200px]">
                   <h3 className="font-bold text-foreground text-base">
@@ -61,7 +61,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
                 </div>
                 
                 {/* Guest Count - Fixed width */}
-                <div className="flex items-center gap-1 text-sm text-muted-foreground font-semibold min-w-[100px]">
+                <div className="flex items-center gap-0.5 text-sm text-muted-foreground font-semibold min-w-[100px]">
                   <Users className="w-4 h-4" />
                   <span>{reservation.party_size} Guests</span>
                 </div>
@@ -69,7 +69,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
                 {/* Section and Table - Fixed width */}
                 <div className="min-w-[150px]">
                   {reservation.section && (
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground font-semibold">
+                    <div className="flex items-center gap-0.5 text-sm text-muted-foreground font-semibold">
                       <MapPin className="w-4 h-4" />
                       <span>{reservation.section}{reservation.table_id ? ` - Table ${reservation.table_id}` : ''}</span>
                     </div>
@@ -79,9 +79,9 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
                 {/* Special Requests - Flexible width */}
                 <div className="flex-1">
                   {reservation.special_requests && (
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-0.5 text-sm text-muted-foreground">
                       <StickyNote className="w-4 h-4" />
-                      <span className="font-medium">Special: </span>
+                      <span className="font-medium">Note: </span>
                       <span className="truncate">{reservation.special_requests}</span>
                     </div>
                   )}
