@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Edit, Trash2, Check } from 'lucide-react';
+import { Users, Edit, Trash2, Check, Table, Note } from 'lucide-react';
 import { type Reservation } from '@/hooks/useReservations';
 
 interface ReservationCardProps {
@@ -58,19 +58,21 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
                 {/* Guest Count */}
                 <div className="flex items-center gap-1 text-sm text-muted-foreground font-semibold">
                   <Users className="w-4 h-4" />
-                  <span>{reservation.party_size} guests</span>
+                  <span>{reservation.party_size} Guests</span>
                 </div>
                 
                 {/* Table Preference */}
                 {reservation.table_preference && (
-                  <div className="text-sm text-muted-foreground font-semibold">
-                    Table: {reservation.table_preference}
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground font-semibold">
+                    <Table className="w-4 h-4" />
+                    <span>Table: {reservation.table_preference}</span>
                   </div>
                 )}
                 
                 {/* Special Requests - now on the same line */}
                 {reservation.special_requests && (
-                  <div className="text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Note className="w-4 h-4" />
                     <span className="font-medium">Special: </span>
                     <span>{reservation.special_requests}</span>
                   </div>
