@@ -20,6 +20,7 @@ export interface GuestFormData {
   name: string;
   email: string;
   phone: string;
+  memberId: string;
   tags: string[];
   tablePreferences: string[];
   foodPreferences: PreferenceItem[];
@@ -39,6 +40,7 @@ const getInitialFormData = (initialData?: any): GuestFormData => {
       name: initialData.name || '',
       email: initialData.email || '',
       phone: initialData.phone || '',
+      memberId: initialData.member_id || '',
       tags: initialData.tags || [],
       tablePreferences: initialData.tablePreferences || [],
       foodPreferences: initialData.foodPreferences || [],
@@ -57,6 +59,7 @@ const getInitialFormData = (initialData?: any): GuestFormData => {
     name: '',
     email: '',
     phone: '',
+    memberId: '',
     tags: [],
     tablePreferences: [],
     foodPreferences: [],

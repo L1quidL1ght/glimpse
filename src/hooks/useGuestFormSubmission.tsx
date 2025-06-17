@@ -20,6 +20,7 @@ export const useGuestFormSubmission = () => {
             name: formData.name.trim(),
             email: formData.email.trim() || null,
             phone: formData.phone.trim() || null,
+            member_id: formData.memberId.trim() || null,
           })
           .eq('id', customerId);
 
@@ -33,6 +34,7 @@ export const useGuestFormSubmission = () => {
             name: formData.name.trim(),
             email: formData.email.trim() || null,
             phone: formData.phone.trim() || null,
+            member_id: formData.memberId.trim() || null,
           })
           .select()
           .single();

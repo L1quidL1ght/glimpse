@@ -36,6 +36,15 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
       </div>
 
       <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">Member #</label>
+        <Input
+          value={formData.memberId}
+          onChange={(e) => updateField('memberId', e.target.value)}
+          placeholder="Member ID (optional)"
+        />
+      </div>
+
+      <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">Email</label>
         <Input
           type="email"

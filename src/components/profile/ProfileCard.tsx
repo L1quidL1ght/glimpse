@@ -50,6 +50,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
             </div>
           </div>
           <div className="space-y-1 text-sm text-muted-foreground">
+            {customer.member_id && (
+              <div className="font-medium">Member #{customer.member_id}</div>
+            )}
             <div>{customer.email}</div>
             <div>{customer.phone}</div>
           </div>

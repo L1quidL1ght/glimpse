@@ -3,7 +3,6 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { TagIcon } from '@/components/ui/tag-icon';
 
 interface Customer {
   id: string;
@@ -11,6 +10,7 @@ interface Customer {
   email: string | null;
   phone: string | null;
   avatar_url: string | null;
+  member_id: string | null;
   tags?: string[];
   totalVisits?: number;
   lastVisit?: string;
@@ -75,30 +75,20 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
             <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors">
               {customer.name}
             </h3>
-            {/* Tag Icons beside name - show only important tags */}
-            <div className="flex items-center gap-1">
-              {filteredTags.slice(0, 2).map((tag, index) => (
-                <TagIcon key={index} tagName={tag} className="w-4 h-4" />
-              ))}
-              {filteredTags.length > 2 && (
-                <span className="text-xs text-muted-foreground">+{filteredTags.length - 2}</span>
-              )}
-            </div>
+            {customer.member_id && (
+              <Badge variant="outline" className="text-xs">
+                #{customer.member_id}
+              </Badge>
+            )}
           </div>
           
           {/* Tag badges - show important tags only */}
           <div className="flex items-center gap-2 mt-1">
             {filteredTags.map((tag, index) => (
-              <Badge key={index} variant={getTagVariant(tag)} className="text-xs flex items-center gap-1">
-                <TagIcon tagName={tag} className="w-3 h-3" />
+              <Badge key={index} variant={getTagVariant(tag)} className="text-xs">
                 {tag}
               </Badge>
             ))}
-            {customer.totalVisits !== undefined && (
-              <Badge variant="secondary" className="text-xs">
-                {customer.totalVisits} visits
-              </Badge>
-            )}
           </div>
         </div>
 
