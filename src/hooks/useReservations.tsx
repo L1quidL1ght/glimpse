@@ -9,6 +9,8 @@ export interface Reservation {
   reservation_date: string;
   reservation_time: string;
   party_size: number;
+  section?: string;
+  table_id?: string;
   table_preference?: string;
   special_requests?: string;
   status: 'confirmed' | 'cancelled' | 'completed' | 'no_show';
@@ -64,11 +66,14 @@ export const useReservations = () => {
     }
   };
 
-  const createReservation = async (reservationData: Omit<Reservation, 'id' | 'created_at' | 'updated_at' | 'customer'>) => {
+  const createReservation = async (reservationData: Omit<Reservation, 'id' | 'created_at' | 'updated_at' | 'customer' | 'status'>) => {
     try {
       const { data, error } = await supabase
         .from('reservations')
-        .insert([reservationData])
+        .insert([{
+          ...reservationData,
+          status: 'confirmed'
+        }])
         .select()
         .single();
 

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, Edit, Trash2, Check, Table, StickyNote } from 'lucide-react';
+import { Users, Edit, Trash2, Check, MapPin, StickyNote } from 'lucide-react';
 import { type Reservation } from '@/hooks/useReservations';
 
 interface ReservationCardProps {
@@ -61,11 +61,11 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
                   <span>{reservation.party_size} Guests</span>
                 </div>
                 
-                {/* Table Preference */}
-                {reservation.table_preference && (
+                {/* Section and Table */}
+                {reservation.section && (
                   <div className="flex items-center gap-1 text-sm text-muted-foreground font-semibold">
-                    <Table className="w-4 h-4" />
-                    <span>Table: {reservation.table_preference}</span>
+                    <MapPin className="w-4 h-4" />
+                    <span>{reservation.section}{reservation.table_id ? ` - Table ${reservation.table_id}` : ''}</span>
                   </div>
                 )}
                 

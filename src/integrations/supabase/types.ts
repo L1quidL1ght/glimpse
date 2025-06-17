@@ -328,8 +328,10 @@ export type Database = {
           party_size: number
           reservation_date: string
           reservation_time: string
+          section: string | null
           special_requests: string | null
           status: string
+          table_id: string | null
           table_preference: string | null
           updated_at: string
         }
@@ -340,8 +342,10 @@ export type Database = {
           party_size?: number
           reservation_date: string
           reservation_time: string
+          section?: string | null
           special_requests?: string | null
           status?: string
+          table_id?: string | null
           table_preference?: string | null
           updated_at?: string
         }
@@ -352,8 +356,10 @@ export type Database = {
           party_size?: number
           reservation_date?: string
           reservation_time?: string
+          section?: string | null
           special_requests?: string | null
           status?: string
+          table_id?: string | null
           table_preference?: string | null
           updated_at?: string
         }
@@ -366,6 +372,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      restaurant_tables: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          name: string
+          section: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          id: string
+          name: string
+          section: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          name?: string
+          section?: string
+        }
+        Relationships: []
       }
       spirits_preferences: {
         Row: {
