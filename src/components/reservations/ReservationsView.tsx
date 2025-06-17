@@ -16,13 +16,13 @@ const ReservationsView: React.FC = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [editingReservation, setEditingReservation] = useState<Reservation | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  // Remove status filter and always show all reservations
   const { sortedReservations, reservationCounts } = useReservationFilters(
     reservations,
     selectedDate,
-    statusFilter
+    'all'
   );
 
   const getDateLabel = (date: Date) => {
@@ -79,27 +79,32 @@ const ReservationsView: React.FC = () => {
         </Button>
       </div>
 
-      {/* Date Navigation */}
-      <DateNavigator
-        selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
-        onNavigateDate={navigateDate}
-        showDatePicker={showDatePicker}
-        onShowDatePickerChange={setShowDatePicker}
-      />
-
-      {/* Stats and Filters */}
-      <ReservationStats
-        counts={reservationCounts}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-      />
+      {/* Date Navigation and Stats - 50/50 Layout */}
+      <div className="flex gap-6">
+        <div className="flex-1">
+          <DateNavigator
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            onNavigateDate={navigateDate}
+            showDatePicker={showDatePicker}
+            onShowDatePickerChange={setShowDatePicker}
+          />
+        </div>
+        <div className="flex-1">
+          <ReservationStats
+            counts={{
+              total: reservationCounts.total,
+              completed: reservationCounts.completed,
+            }}
+          />
+        </div>
+      </div>
 
       {/* Reservations List */}
       <ReservationsList
         reservations={sortedReservations}
         selectedDate={selectedDate}
-        statusFilter={statusFilter}
+        statusFilter="all"
         onEdit={handleEdit}
         onDelete={handleDelete}
         onStatusChange={handleStatusChange}

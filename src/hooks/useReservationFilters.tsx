@@ -11,11 +11,9 @@ export const useReservationFilters = (
   const filteredReservations = useMemo(() => {
     const dateStr = format(selectedDate, 'yyyy-MM-dd');
     return reservations.filter(reservation => {
-      const matchesDate = reservation.reservation_date === dateStr;
-      const matchesStatus = statusFilter === 'all' || reservation.status === statusFilter;
-      return matchesDate && matchesStatus;
+      return reservation.reservation_date === dateStr;
     });
-  }, [reservations, selectedDate, statusFilter]);
+  }, [reservations, selectedDate]);
 
   const sortedReservations = useMemo(() => {
     return [...filteredReservations].sort((a, b) => {
