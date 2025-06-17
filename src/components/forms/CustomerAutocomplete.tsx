@@ -9,14 +9,14 @@ import { useCustomerAutocomplete } from '@/hooks/useCustomerAutocomplete';
 
 interface CustomerAutocompleteProps {
   value: string;
-  onChange: (value: string) => void;
+  onSelect: (customerId: string) => void;
   placeholder?: string;
   excludeCustomerId?: string;
 }
 
 const CustomerAutocomplete: React.FC<CustomerAutocompleteProps> = ({
   value,
-  onChange,
+  onSelect,
   placeholder = "Select customer...",
   excludeCustomerId
 }) => {
@@ -27,7 +27,7 @@ const CustomerAutocomplete: React.FC<CustomerAutocompleteProps> = ({
     excludeCustomerId ? customer.id !== excludeCustomerId : true
   );
 
-  const selectedCustomer = customers.find(customer => customer.name === value);
+  const selectedCustomer = customers.find(customer => customer.id === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -52,15 +52,15 @@ const CustomerAutocomplete: React.FC<CustomerAutocompleteProps> = ({
                 <CommandItem
                   key={customer.id}
                   value={customer.name}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue);
+                  onSelect={() => {
+                    onSelect(customer.id);
                     setOpen(false);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === customer.name ? "opacity-100" : "opacity-0"
+                      value === customer.id ? "opacity-100" : "opacity-0"
                     )}
                   />
                   <div className="flex flex-col">

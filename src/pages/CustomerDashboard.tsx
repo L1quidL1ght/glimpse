@@ -46,7 +46,6 @@ const CustomerDashboard = () => {
       <div className="max-w-6xl mx-auto p-6">
         <DashboardHeader 
           onAddGuest={() => setShowAddDialog(true)}
-          onAdminLogin={() => setShowAdminDialog(true)}
           isAdmin={isAdmin}
         />
 
@@ -65,7 +64,6 @@ const CustomerDashboard = () => {
             <GuestList 
               customers={customers}
               onCustomerSelect={setSelectedCustomer}
-              loading={loading}
             />
           </TabsContent>
 

@@ -45,7 +45,13 @@ export const useReservations = () => {
 
       if (error) throw error;
 
-      setReservations(data || []);
+      // Transform and ensure proper typing
+      const typedReservations: Reservation[] = (data || []).map(item => ({
+        ...item,
+        status: item.status as 'confirmed' | 'cancelled' | 'completed' | 'no_show'
+      }));
+
+      setReservations(typedReservations);
     } catch (error) {
       console.error('Error fetching reservations:', error);
       toast({

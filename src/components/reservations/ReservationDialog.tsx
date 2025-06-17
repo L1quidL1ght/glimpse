@@ -29,7 +29,7 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({
     party_size: 2,
     table_preference: '',
     special_requests: '',
-    status: 'confirmed' as const
+    status: 'confirmed' as 'confirmed' | 'cancelled' | 'completed' | 'no_show'
   });
 
   useEffect(() => {
@@ -82,6 +82,13 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({
 
   const handleCustomerSelect = (customerId: string) => {
     setFormData(prev => ({ ...prev, customer_id: customerId }));
+  };
+
+  const handleStatusChange = (status: string) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      status: status as 'confirmed' | 'cancelled' | 'completed' | 'no_show'
+    }));
   };
 
   return (
@@ -143,7 +150,7 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as any }))}>
+              <Select value={formData.status} onValueChange={handleStatusChange}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
