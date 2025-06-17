@@ -2,9 +2,8 @@
 import React, { useState } from 'react';
 import { useGuestForm } from '@/hooks/useGuestForm';
 import { useCustomerAutocomplete } from '@/hooks/useCustomerAutocomplete';
+import { useGuestFormSubmission } from '@/hooks/useGuestFormSubmission';
 import ExtendedGuestFormFields from './ExtendedGuestFormFields';
-import { useGuestFormState } from './GuestFormState';
-import { useGuestFormSubmission } from './GuestFormSubmission';
 
 interface EditGuestFormContainerProps {
   customer: any;
@@ -21,7 +20,8 @@ const EditGuestFormContainer: React.FC<EditGuestFormContainerProps> = ({
 }) => {
   const { customers } = useCustomerAutocomplete();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { formData, updateField, setFormData } = useGuestForm();
+  const { formData, updateField, setFormData } = useGuestForm(customer);
+  const { submitForm } = useGuestFormSubmission();
 
   // Get existing phone numbers excluding current customer
   const existingPhoneNumbers = customers
@@ -29,24 +29,51 @@ const EditGuestFormContainer: React.FC<EditGuestFormContainerProps> = ({
     .map(c => c.phone)
     .filter(Boolean) as string[];
 
-  const {
-    connections,
-    setConnections,
-    importantDates,
-    setImportantDates,
-    preferences,
-    handlePreferencesChange
-  } = useGuestFormState({ customer, open, setFormData });
-
-  const { handleSubmit } = useGuestFormSubmission({
-    customer,
-    formData,
-    connections,
-    importantDates,
-    preferences,
-    onGuestUpdated,
-    setIsSubmitting
+  // Local state for additional form data
+  const [connections, setConnections] = useState<Array<{ name: string; relationship: string }>>(
+    customer?.connections || []
+  );
+  const [importantDates, setImportantDates] = useState<Array<{ event: string; date: string }>>(
+    customer?.importantDates || []
+  );
+  const [preferences, setPreferences] = useState({
+    food: customer?.foodPreferences?.map((p: any) => p.value) || [],
+    wine: customer?.winePreferences?.map((p: any) => p.value) || [],
+    cocktail: customer?.cocktailPreferences?.map((p: any) => p.value) || [],
+    spirits: customer?.spiritsPreferences?.map((p: any) => p.value) || [],
   });
+
+  const handlePreferencesChange = (category: string, newPreferences: string[]) => {
+    setPreferences(prev => ({
+      ...prev,
+      [category]: newPreferences
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Merge all form data including connections, dates, and preferences
+      const completeFormData = {
+        ...formData,
+        connections,
+        importantDates,
+        foodPreferences: preferences.food.map(p => ({ value: p, isGolden: false })),
+        winePreferences: preferences.wine.map(p => ({ value: p, isGolden: false })),
+        cocktailPreferences: preferences.cocktail.map(p => ({ value: p, isGolden: false })),
+        spiritsPreferences: preferences.spirits.map(p => ({ value: p, isGolden: false })),
+      };
+
+      await submitForm(completeFormData, customer?.id);
+      onGuestUpdated();
+    } catch (error) {
+      console.error('Error updating guest:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
