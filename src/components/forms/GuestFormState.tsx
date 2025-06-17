@@ -1,66 +1,97 @@
 
-import { useState, useEffect } from 'react';
-import { GuestFormData } from '@/hooks/useGuestForm';
+import { useState } from 'react';
 
-interface GuestFormStateProps {
-  customer: any;
-  open: boolean;
-  setFormData: (data: GuestFormData) => void;
+interface PreferenceItem {
+  value: string;
+  isGolden: boolean;
 }
 
-export const useGuestFormState = ({ customer, open, setFormData }: GuestFormStateProps) => {
-  const [connections, setConnections] = useState<Array<{ name: string; relationship: string }>>([]);
-  const [importantDates, setImportantDates] = useState<Array<{ event: string; date: string }>>([]);
-  const [preferences, setPreferences] = useState({
-    food: [] as string[],
-    wine: [] as string[],
-    cocktail: [] as string[],
-    spirits: [] as string[]
-  });
+interface Connection {
+  name: string;
+  relationship: string;
+}
 
-  useEffect(() => {
-    if (customer && open) {
-      setFormData({
-        name: customer.name || '',
-        email: customer.email || '',
-        phone: customer.phone || '',
-        tags: customer.tags || [],
-        tablePreferences: customer.tablePreferences || [],
-        foodPreferences: customer.foodPreferences || [],
-        winePreferences: customer.winePreferences || [],
-        cocktailPreferences: customer.cocktailPreferences || [],
-        spiritsPreferences: customer.spiritsPreferences || [],
-        allergies: customer.allergies || [],
-        importantDates: customer.importantDates || [],
-        connections: customer.connections || [],
-        notes: customer.notes || '',
-        importantNotables: customer.importantNotables || []
-      });
+interface ImportantDate {
+  event: string;
+  date: string;
+}
 
-      setConnections(customer.connections || []);
-      setImportantDates(customer.importantDates || []);
-      setPreferences({
-        food: customer.foodPreferences?.map((p: any) => p.value) || [],
-        wine: customer.winePreferences?.map((p: any) => p.value) || [],
-        cocktail: customer.cocktailPreferences?.map((p: any) => p.value) || [],
-        spirits: customer.spiritsPreferences?.map((p: any) => p.value) || []
-      });
-    }
-  }, [customer, open, setFormData]);
+export interface GuestFormData {
+  name: string;
+  email: string;
+  phone: string;
+  memberId: string;
+  tags: string[];
+  tablePreferences: string[];
+  foodPreferences: PreferenceItem[];
+  winePreferences: PreferenceItem[];
+  cocktailPreferences: PreferenceItem[];
+  spiritsPreferences: PreferenceItem[];
+  allergies: string[];
+  importantDates: ImportantDate[];
+  connections: Connection[];
+  notes: string;
+  importantNotables: string[];
+}
 
-  const handlePreferencesChange = (category: string, newPreferences: string[]) => {
-    setPreferences(prev => ({
-      ...prev,
-      [category]: newPreferences
-    }));
+const getInitialFormData = (initialData?: any): GuestFormData => {
+  if (initialData) {
+    return {
+      name: initialData.name || '',
+      email: initialData.email || '',
+      phone: initialData.phone || '',
+      memberId: initialData.member_id || '',
+      tags: initialData.tags || [],
+      tablePreferences: initialData.tablePreferences || [],
+      foodPreferences: initialData.foodPreferences || [],
+      winePreferences: initialData.winePreferences || [],
+      cocktailPreferences: initialData.cocktailPreferences || [],
+      spiritsPreferences: initialData.spiritsPreferences || [],
+      allergies: initialData.allergies || [],
+      importantDates: initialData.importantDates || [],
+      connections: initialData.connections || [],
+      notes: initialData.notes || '',
+      importantNotables: initialData.importantNotables || [],
+    };
+  }
+
+  return {
+    name: '',
+    email: '',
+    phone: '',
+    memberId: '',
+    tags: [],
+    tablePreferences: [],
+    foodPreferences: [],
+    winePreferences: [],
+    cocktailPreferences: [],
+    spiritsPreferences: [],
+    allergies: [],
+    importantDates: [],
+    connections: [],
+    notes: '',
+    importantNotables: [],
+  };
+};
+
+export const useGuestFormState = (initialData?: any) => {
+  const [formData, setFormData] = useState<GuestFormData>(() => getInitialFormData(initialData));
+
+  const updateField = <K extends keyof GuestFormData>(
+    field: K,
+    value: GuestFormData[K]
+  ) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const resetForm = () => {
+    setFormData(getInitialFormData());
   };
 
   return {
-    connections,
-    setConnections,
-    importantDates,
-    setImportantDates,
-    preferences,
-    handlePreferencesChange
+    formData,
+    updateField,
+    resetForm,
+    setFormData,
   };
 };
