@@ -1,9 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut, UserPlus } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, UserPlus } from 'lucide-react';
 import Logo from '@/components/Logo';
 
 interface NavigationHeaderProps {
@@ -19,35 +17,6 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   title,
   onAddGuest
 }) => {
-  const { signOut } = useAuth();
-  const { toast } = useToast();
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
-  const handleSignOut = async () => {
-    setIsSigningOut(true);
-    try {
-      const { error } = await signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Signed Out",
-        description: "You have been successfully signed out"
-      });
-      
-      // Redirect to home page
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Error signing out:', error);
-      toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSigningOut(false);
-    }
-  };
-
   return (
     <div className="flex items-center justify-between py-6 h-20">
       <div className="flex items-center gap-4">
@@ -71,16 +40,6 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
             Add Guest
           </Button>
         )}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSignOut}
-          disabled={isSigningOut}
-          className="flex items-center gap-2 h-10 px-4 text-base font-semibold"
-        >
-          <LogOut className="w-5 h-5" />
-          {isSigningOut ? 'Signing Out...' : 'Log Out'}
-        </Button>
       </div>
     </div>
   );

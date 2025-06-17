@@ -7,7 +7,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import EditGuestFormContainer from '@/components/forms/EditGuestFormContainer';
-import EditGuestActions from '@/components/forms/EditGuestActions';
 
 interface EditGuestDialogProps {
   open: boolean;
@@ -35,14 +34,7 @@ const EditGuestDialog: React.FC<EditGuestDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>Edit Guest</DialogTitle>
-            <EditGuestActions
-              customer={customer}
-              onGuestUpdated={handleGuestUpdated}
-              onClose={() => onOpenChange(false)}
-            />
-          </div>
+          <DialogTitle>Edit Guest</DialogTitle>
         </DialogHeader>
 
         <EditGuestFormContainer

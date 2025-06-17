@@ -5,7 +5,6 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardSearch from '@/components/dashboard/DashboardSearch';
 import GuestList from '@/components/dashboard/GuestList';
 import AddGuestDialog from '@/components/dialogs/AddGuestDialog';
-import AdminLoginDialog from '@/components/dialogs/AdminLoginDialog';
 import ReservationsView from '@/components/reservations/ReservationsView';
 import GuestFilters from '@/components/dashboard/GuestFilters';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,8 +13,6 @@ import { useGuestFilters } from '@/hooks/useGuestFilters';
 
 const CustomerDashboard = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showAdminDialog, setShowAdminDialog] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState('guests');
 
   const {
@@ -36,17 +33,12 @@ const CustomerDashboard = () => {
     clearFilters
   } = useGuestFilters(customers);
 
-  const handleAdminLogin = () => {
-    setIsAdmin(true);
-  };
-
   if (selectedCustomer) {
     return (
       <CustomerProfile
         customer={selectedCustomer}
         onBack={() => setSelectedCustomer(null)}
         allCustomers={customers}
-        isAdmin={isAdmin}
       />
     );
   }
@@ -56,8 +48,6 @@ const CustomerDashboard = () => {
       <div className="max-w-6xl mx-auto p-6">
         <DashboardHeader 
           onAddGuest={() => setShowAddDialog(true)}
-          isAdmin={isAdmin}
-          onAdminLogin={() => setShowAdminDialog(true)}
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
@@ -90,7 +80,6 @@ const CustomerDashboard = () => {
                 customer.phone?.includes(searchTerm)
               )}
               onCustomerSelect={setSelectedCustomer}
-              isAdmin={isAdmin}
               onCustomerDeleted={refetch}
             />
           </TabsContent>
@@ -104,12 +93,6 @@ const CustomerDashboard = () => {
           open={showAddDialog}
           onOpenChange={setShowAddDialog}
           onGuestAdded={handleGuestAdded}
-        />
-
-        <AdminLoginDialog
-          open={showAdminDialog}
-          onOpenChange={setShowAdminDialog}
-          onAdminLogin={handleAdminLogin}
         />
       </div>
     </div>
