@@ -3,6 +3,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { TagIcon } from '@/components/ui/tag-icon';
 
 interface Customer {
   id: string;
@@ -44,6 +45,13 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
       .slice(0, 2);
   };
 
+  const formatMemberId = (memberId: string | null) => {
+    if (!memberId) return null;
+    // Pad with zeros to make it 3 digits
+    const paddedId = memberId.padStart(3, '0');
+    return `#${paddedId}`;
+  };
+
   // Filter tags to show only meaningful ones (not including basic status tags)
   const filteredTags = customer.tags?.filter(tag => 
     !['Regular', 'New'].includes(tag)
@@ -77,15 +85,16 @@ const GuestListItem: React.FC<GuestListItemProps> = ({ customer, onClick }) => {
             </h3>
             {customer.member_id && (
               <Badge variant="outline" className="text-xs">
-                #{customer.member_id}
+                {formatMemberId(customer.member_id)}
               </Badge>
             )}
           </div>
           
-          {/* Tag badges - show important tags only */}
+          {/* Tag badges with icons - show important tags only */}
           <div className="flex items-center gap-2 mt-1">
             {filteredTags.map((tag, index) => (
-              <Badge key={index} variant={getTagVariant(tag)} className="text-xs">
+              <Badge key={index} variant={getTagVariant(tag)} className="text-xs flex items-center gap-1">
+                <TagIcon tagName={tag} className="w-3 h-3" />
                 {tag}
               </Badge>
             ))}
