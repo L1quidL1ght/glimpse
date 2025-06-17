@@ -28,7 +28,7 @@ const ReservationsView: React.FC = () => {
   const getDateLabel = (date: Date) => {
     if (isToday(date)) return 'Today';
     if (isTomorrow(date)) return 'Tomorrow';
-    return format(date, 'MMM dd, yyyy');
+    return format(date, 'MMMM dd, yyyy');
   };
 
   const navigateDate = (direction: 'prev' | 'next') => {
@@ -64,17 +64,17 @@ const ReservationsView: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pt-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4">
         <div>
-          <h2 className="text-2xl font-bold">Reservations</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-3xl font-bold">Reservations</h2>
+          <p className="text-muted-foreground text-lg mt-2">
             {reservationCounts.total} reservations on {getDateLabel(selectedDate)}
           </p>
         </div>
-        <Button onClick={() => setShowDialog(true)} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" />
+        <Button onClick={() => setShowDialog(true)} className="flex items-center gap-2 h-12 px-6 text-base font-semibold">
+          <Plus className="w-5 h-5" />
           New Reservation
         </Button>
       </div>

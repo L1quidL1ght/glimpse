@@ -24,7 +24,7 @@ const ReservationsList: React.FC<ReservationsListProps> = ({
   onStatusChange
 }) => {
   const getDateLabel = (date: Date) => {
-    return format(date, 'MMM dd, yyyy');
+    return format(date, 'MMMM dd, yyyy');
   };
 
   const hasNoReservations = reservations.length === 0;
@@ -46,17 +46,51 @@ const ReservationsList: React.FC<ReservationsListProps> = ({
     );
   }
 
+  // Separate reservations into upcoming and completed
+  const upcomingReservations = reservations.filter(r => r.status !== 'completed');
+  const completedReservations = reservations.filter(r => r.status === 'completed');
+
   return (
-    <div className="grid gap-4">
-      {reservations.map((reservation) => (
-        <ReservationCard
-          key={reservation.id}
-          reservation={reservation}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onStatusChange={onStatusChange}
-        />
-      ))}
+    <div className="space-y-8">
+      {/* Upcoming Reservations Section */}
+      {upcomingReservations.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-foreground">
+            Upcoming ({upcomingReservations.length})
+          </h3>
+          <div className="grid gap-4">
+            {upcomingReservations.map((reservation) => (
+              <ReservationCard
+                key={reservation.id}
+                reservation={reservation}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onStatusChange={onStatusChange}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Completed Reservations Section */}
+      {completedReservations.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold text-foreground">
+            Completed ({completedReservations.length})
+          </h3>
+          <div className="grid gap-4 opacity-60">
+            {completedReservations.map((reservation) => (
+              <ReservationCard
+                key={reservation.id}
+                reservation={reservation}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onStatusChange={onStatusChange}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

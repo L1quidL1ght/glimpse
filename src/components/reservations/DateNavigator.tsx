@@ -26,7 +26,7 @@ const DateNavigator: React.FC<DateNavigatorProps> = ({
   const getDateLabel = (date: Date) => {
     if (isToday(date)) return 'Today';
     if (isTomorrow(date)) return 'Tomorrow';
-    return format(date, 'MMM dd, yyyy');
+    return format(date, 'MMMM dd, yyyy');
   };
 
   return (

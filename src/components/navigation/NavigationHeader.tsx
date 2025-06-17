@@ -49,23 +49,25 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center justify-between py-6 h-20">
       <div className="flex items-center gap-4">
         {showBackButton && onBack && (
-          <Button variant="outline" onClick={onBack} size="icon">
-            <ArrowLeft className="w-4 h-4" />
+          <Button variant="outline" onClick={onBack} size="icon" className="h-10 w-10">
+            <ArrowLeft className="w-5 h-5" />
           </Button>
         )}
-        <Logo />
+        <div className="text-2xl font-bold">
+          <Logo />
+        </div>
       </div>
       
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {onAddGuest && (
           <Button
             onClick={onAddGuest}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white h-10 px-4 text-base font-semibold"
           >
-            <UserPlus className="w-4 h-4" />
+            <UserPlus className="w-5 h-5" />
             Add Guest
           </Button>
         )}
@@ -74,9 +76,9 @@ const NavigationHeader: React.FC<NavigationHeaderProps> = ({
           size="sm"
           onClick={handleSignOut}
           disabled={isSigningOut}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 h-10 px-4 text-base font-semibold"
         >
-          <LogOut className="w-4 h-4" />
+          <LogOut className="w-5 h-5" />
           {isSigningOut ? 'Signing Out...' : 'Log Out'}
         </Button>
       </div>
