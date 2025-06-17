@@ -17,13 +17,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Logo />
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Guest Management</h1>
-          <p className="text-muted-foreground">Manage your restaurant guests and reservations</p>
-        </div>
-      </div>
+      <Logo />
       <div className="flex items-center gap-2">
         {!isAdmin && onAdminLogin && (
           <Button
