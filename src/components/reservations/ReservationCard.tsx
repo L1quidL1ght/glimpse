@@ -44,7 +44,7 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
           {/* Left side - Time and Guest Info */}
           <div className="flex items-center gap-4 flex-1">
             {/* Time Box */}
-            <div className="bg-gray-50 text-gray-700 px-3 py-2 rounded-md text-sm font-semibold min-w-[80px] text-center">
+            <div className="px-3 py-2 rounded-md text-sm font-semibold min-w-[80px] text-center text-white" style={{ backgroundColor: '#333131' }}>
               {formatTime(reservation.reservation_time)}
             </div>
             
@@ -83,10 +83,10 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
           <div className="flex items-center gap-2 ml-4">
             {canToggleCompletion && (
               <Button
-                variant={isCompleted ? "default" : "outline"}
+                variant="outline"
                 size="sm"
                 onClick={handleCompletionToggle}
-                className={isCompleted ? "bg-green-600 text-white hover:bg-green-700" : "text-green-600 border-green-600 hover:bg-green-50"}
+                className={isCompleted ? "bg-green-600 text-white hover:bg-green-700 border-input" : "text-green-600 hover:bg-green-50 border-input"}
               >
                 <Check className="w-4 h-4" />
               </Button>
