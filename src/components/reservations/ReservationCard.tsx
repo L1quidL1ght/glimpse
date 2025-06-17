@@ -50,38 +50,36 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
             
             {/* Guest Info */}
             <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <h3 className="text-lg font-bold text-foreground">
-                    {reservation.customer?.name}
-                  </h3>
-                  
-                  {/* Guest Count and Table Preference */}
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1 font-semibold">
-                      <Users className="w-4 h-4" />
-                      <span>{reservation.party_size} guests</span>
-                    </div>
-                    {reservation.table_preference && (
-                      <div className="font-semibold">
-                        Table: {reservation.table_preference}
-                      </div>
-                    )}
+              <div className="flex items-center gap-6">
+                <h3 className="text-lg font-bold text-foreground">
+                  {reservation.customer?.name}
+                </h3>
+                
+                {/* Guest Count */}
+                <div className="flex items-center gap-1 text-sm text-muted-foreground font-semibold">
+                  <Users className="w-4 h-4" />
+                  <span>{reservation.party_size} guests</span>
+                </div>
+                
+                {/* Table Preference */}
+                {reservation.table_preference && (
+                  <div className="text-sm text-muted-foreground font-semibold">
+                    Table: {reservation.table_preference}
                   </div>
-                </div>
+                )}
+                
+                {/* Special Requests - now on the same line */}
+                {reservation.special_requests && (
+                  <div className="text-sm text-muted-foreground">
+                    <span className="font-medium">Special: </span>
+                    <span>{reservation.special_requests}</span>
+                  </div>
+                )}
               </div>
-
-              {/* Special Requests */}
-              {reservation.special_requests && (
-                <div className="mt-2 text-sm text-muted-foreground">
-                  <span className="font-medium">Special Requests: </span>
-                  <span>{reservation.special_requests}</span>
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Right side - Action Buttons */}
+          {/* Right side - Simplified Action Buttons */}
           <div className="flex items-center gap-2 ml-4">
             {canToggleCompletion && (
               <Button
@@ -112,28 +110,6 @@ const ReservationCard: React.FC<ReservationCardProps> = ({
             </Button>
           </div>
         </div>
-
-        {/* Status Action Buttons for other statuses */}
-        {reservation.status === 'confirmed' && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onStatusChange(reservation, 'no_show')}
-              className="text-xs"
-            >
-              Mark No Show
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onStatusChange(reservation, 'cancelled')}
-              className="text-xs"
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
