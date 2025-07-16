@@ -1,53 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Mail, Lock, User, Building } from 'lucide-react';
-import Logo from '@/components/Logo';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Shield, Loader2, Building } from 'lucide-react';
+import Logo from '@/components/Logo';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
 const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    fullName: ''
-  });
+  const [pin, setPin] = useState('');
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password: string) => {
-    return password.length >= 8;
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSignIn = async () => {
-    if (!validateEmail(formData.email)) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address",
-        variant: "destructive"
-      });
-      return;
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
     }
+  }, [isAuthenticated, navigate]);
 
-    if (!validatePassword(formData.password)) {
+  const handlePinSubmit = async () => {
+    if (pin.length !== 4) {
       toast({
-        title: "Invalid Password",
-        description: "Password must be at least 8 characters long",
+        title: "Invalid PIN",
+        description: "Please enter a 4-digit PIN",
         variant: "destructive"
       });
       return;
@@ -55,30 +34,20 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email.trim(),
-        password: formData.password
-      });
+      const { error } = await signIn(pin);
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast({
-            title: "Authentication Failed",
-            description: "Invalid email or password. Please check your credentials and try again.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Sign In Error",
-            description: error.message,
-            variant: "destructive"
-          });
-        }
+        toast({
+          title: "Authentication Failed",
+          description: error,
+          variant: "destructive"
+        });
+        setPin(''); // Clear the PIN on error
         return;
       }
 
       toast({
-        title: "Welcome Back",
+        title: "Welcome",
         description: "Successfully signed in to the restaurant dashboard"
       });
       navigate('/dashboard');
@@ -88,93 +57,20 @@ const Auth = () => {
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
+      setPin('');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignUp = async () => {
-    if (!validateEmail(formData.email)) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!validatePassword(formData.password)) {
-      toast({
-        title: "Invalid Password",
-        description: "Password must be at least 8 characters long",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "Passwords do not match",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (formData.fullName.trim().length < 2) {
-      toast({
-        title: "Invalid Name",
-        description: "Please enter your full name",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
-      
-      const { error } = await supabase.auth.signUp({
-        email: formData.email.trim(),
-        password: formData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: formData.fullName.trim()
-          }
-        }
-      });
-
-      if (error) {
-        if (error.message.includes('User already registered')) {
-          toast({
-            title: "Account Exists",
-            description: "An account with this email already exists. Please sign in instead.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Sign Up Error",
-            description: error.message,
-            variant: "destructive"
-          });
-        }
-        return;
-      }
-
-      toast({
-        title: "Account Created",
-        description: "Please check your email to verify your account before signing in.",
-        variant: "default"
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+  const handlePinChange = (value: string) => {
+    setPin(value);
+    
+    // Auto-submit when PIN is complete
+    if (value.length === 4 && !loading) {
+      setTimeout(() => {
+        handlePinSubmit();
+      }, 100);
     }
   };
 
@@ -188,129 +84,59 @@ const Auth = () => {
           <Logo className="scale-125" />
         </div>
 
-        {/* Auth Tabs */}
-        <Tabs defaultValue="signin" className="space-y-6">
-          <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-3">
-              <Building className="w-6 h-6" />
-              Restaurant Access
-            </h1>
-            <p className="text-muted-foreground">Secure staff portal</p>
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-3">
+            <Building className="w-6 h-6" />
+            Staff Access
+          </CardTitle>
+          <CardDescription>
+            Enter your 4-digit PIN to access the restaurant management system
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <div className="text-center">
+              <label className="text-sm font-medium text-foreground mb-4 block">
+                Enter PIN
+              </label>
+              <div className="flex justify-center">
+                <InputOTP
+                  value={pin}
+                  onChange={handlePinChange}
+                  maxLength={4}
+                  disabled={loading}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+            </div>
+
+            <Button
+              onClick={handlePinSubmit}
+              disabled={loading || pin.length !== 4}
+              className="w-full h-12 text-lg"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Signing In...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </Button>
           </div>
 
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="signin" className="space-y-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signin-email" className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  Email Address
-                </Label>
-                <Input
-                  id="signin-email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Enter your email"
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signin-password" className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Password
-                </Label>
-                <Input
-                  id="signin-password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  placeholder="Enter your password"
-                  disabled={loading}
-                />
-              </div>
-              <Button
-                onClick={handleSignIn}
-                disabled={loading || !formData.email || !formData.password}
-                className="w-full h-12 text-lg"
-              >
-                {loading ? "Signing In..." : "Sign In"}
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="signup" className="space-y-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="signup-name" className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Full Name
-                </Label>
-                <Input
-                  id="signup-name"
-                  type="text"
-                  value={formData.fullName}
-                  onChange={(e) => handleInputChange('fullName', e.target.value)}
-                  placeholder="Enter your full name"
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-email" className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  Email Address
-                </Label>
-                <Input
-                  id="signup-email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Enter your email"
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-password" className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Password
-                </Label>
-                <Input
-                  id="signup-password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  placeholder="Minimum 8 characters"
-                  disabled={loading}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-confirm" className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Confirm Password
-                </Label>
-                <Input
-                  id="signup-confirm"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  placeholder="Confirm your password"
-                  disabled={loading}
-                />
-              </div>
-              <Button
-                onClick={handleSignUp}
-                disabled={loading || !formData.email || !formData.password || !formData.fullName}
-                className="w-full h-12 text-lg"
-              >
-                {loading ? "Creating Account..." : "Create Account"}
-              </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
+          <div className="text-center text-sm text-muted-foreground">
+            <p>Default PIN for testing: 1234</p>
+          </div>
+        </CardContent>
 
         <div className="mt-6 pt-6 border-t border-border/50 text-center">
           <p className="text-xs text-muted-foreground">

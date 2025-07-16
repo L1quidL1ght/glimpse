@@ -467,6 +467,36 @@ export type Database = {
           },
         ]
       }
+      staff_users: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          pin_hash: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          pin_hash: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          pin_hash?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       table_preferences: {
         Row: {
           created_at: string

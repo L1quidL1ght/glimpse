@@ -1,84 +1,139 @@
 
 import { useState, useEffect } from 'react';
-import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+interface StaffUser {
+  id: string;
+  name: string;
+  role: string;
+  email?: string;
+  user_metadata?: any;
+}
+
+interface Session {
+  token: string;
+  expiresAt: string;
+}
+
+interface AuthState {
+  user: StaffUser | null;
+  session: Session | null;
+}
+
+const SESSION_KEY = 'staff_session';
+const USER_KEY = 'staff_user';
+
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<StaffUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
+    // Load session from localStorage on mount
+    const loadStoredSession = () => {
+      try {
+        const storedUser = localStorage.getItem(USER_KEY);
+        const storedSession = localStorage.getItem(SESSION_KEY);
         
-        // Fetch user profile when authenticated
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
-          }, 0);
-        } else {
-          setUserProfile(null);
+        if (storedUser && storedSession) {
+          const parsedUser = JSON.parse(storedUser);
+          const parsedSession = JSON.parse(storedSession);
+          
+          // Check if session is still valid
+          if (new Date(parsedSession.expiresAt) > new Date()) {
+            setUser(parsedUser);
+            setSession(parsedSession);
+          } else {
+            // Session expired, clear storage
+            localStorage.removeItem(USER_KEY);
+            localStorage.removeItem(SESSION_KEY);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading stored session:', error);
+        localStorage.removeItem(USER_KEY);
+        localStorage.removeItem(SESSION_KEY);
+      }
+      setIsLoading(false);
+    };
+
+    loadStoredSession();
+
+    // Set up auto-logout timer
+    const checkSessionValidity = () => {
+      const storedSession = localStorage.getItem(SESSION_KEY);
+      if (storedSession) {
+        try {
+          const parsedSession = JSON.parse(storedSession);
+          if (new Date(parsedSession.expiresAt) <= new Date()) {
+            signOut();
+          }
+        } catch (error) {
+          console.error('Error checking session validity:', error);
+          signOut();
         }
       }
-    );
+    };
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-      
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    const interval = setInterval(checkSessionValidity, 60000); // Check every minute
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchUserProfile = async (userId: string) => {
+  const signIn = async (pin: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-      
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', error);
-        return;
+      const { data, error } = await supabase.functions.invoke('pin-auth', {
+        body: { pin }
+      });
+
+      if (error) {
+        console.error('Sign in error:', error);
+        return { error: error.message || 'Authentication failed' };
       }
-      
-      setUserProfile(data);
+
+      if (data.success) {
+        const userData = data.user;
+        const sessionData = data.session;
+        
+        // Store in localStorage
+        localStorage.setItem(USER_KEY, JSON.stringify(userData));
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+        
+        // Update state
+        setUser(userData);
+        setSession(sessionData);
+        
+        return { error: null };
+      }
+
+      return { error: data.error || 'Authentication failed' };
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('Sign in error:', error);
+      return { error: 'Authentication failed' };
     }
   };
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      setUser(null);
-      setSession(null);
-    }
-    return { error };
+  const signOut = () => {
+    // Clear localStorage
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(SESSION_KEY);
+    
+    // Clear state
+    setUser(null);
+    setSession(null);
+    
+    return { error: null };
   };
 
   return {
     user,
     session,
     isLoading,
+    signIn,
     signOut,
-    isAuthenticated: !!user,
-    userProfile,
-    isAdmin: userProfile?.role === 'admin',
-    isManager: userProfile?.role === 'manager',
-    isStaff: userProfile?.role === 'staff'
+    isAuthenticated: !!user && !!session,
+    userProfile: user, // For compatibility with existing components
+    isAdmin: user?.role === 'admin',
+    isManager: user?.role === 'manager',
+    isStaff: user?.role === 'staff'
   };
 };
