@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings as SettingsIcon } from 'lucide-react';
+import { Plus, Settings as SettingsIcon, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { StaffUserTable } from '@/components/settings/StaffUserTable';
 import { AddStaffUserDialog } from '@/components/settings/AddStaffUserDialog';
 import { EditStaffUserDialog } from '@/components/settings/EditStaffUserDialog';
@@ -56,6 +57,11 @@ const Settings: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            <Link to="/dashboard">
+              <Button variant="outline" size="icon" className="h-10 w-10">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
             <div className="rounded-lg bg-primary/10 p-2">
               <SettingsIcon className="h-6 w-6 text-primary" />
             </div>
@@ -64,6 +70,12 @@ const Settings: React.FC = () => {
               <p className="text-muted-foreground">Manage system configuration and staff users</p>
             </div>
           </div>
+          <Link to="/dashboard">
+            <Button variant="secondary" className="flex items-center space-x-2">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Dashboard</span>
+            </Button>
+          </Link>
         </div>
 
         {/* Staff Users Section */}
