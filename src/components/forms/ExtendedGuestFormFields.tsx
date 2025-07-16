@@ -8,7 +8,8 @@ import AllergiesInput from './AllergiesInput';
 import ImportantNotablesInput from './ImportantNotablesInput';
 import ConnectionsManager from './ConnectionsManager';
 import ImportantDatesManager from './ImportantDatesManager';
-import PreferencesSections from './PreferencesSections';
+import PreferencesInputsSection from './PreferencesInputsSection';
+import NotesSection from './NotesSection';
 
 interface ExtendedGuestFormFieldsProps {
   formData: GuestFormData;
@@ -73,11 +74,16 @@ const ExtendedGuestFormFields: React.FC<ExtendedGuestFormFieldsProps> = ({
       
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold text-foreground mb-4">Preferences</h3>
-        <PreferencesSections
+        <PreferencesInputsSection
           formData={formData}
           updateField={updateField}
         />
       </div>
+      
+      <NotesSection
+        formData={formData}
+        updateField={updateField}
+      />
     </div>
   );
 };

@@ -49,6 +49,7 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Only validate that name is provided - all other fields are optional
     if (!formData.name.trim()) {
       toast({
         title: "Error",

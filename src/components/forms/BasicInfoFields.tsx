@@ -31,7 +31,6 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
           value={formData.name}
           onChange={(e) => updateField('name', e.target.value)}
           placeholder="Guest name"
-          required
         />
       </div>
 
