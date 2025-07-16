@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import GuestFormFields from './GuestFormFields';
-import PreferencesSections from './PreferencesSections';
+import ExtendedGuestFormFields from './ExtendedGuestFormFields';
 import { useGuestForm } from '@/hooks/useGuestForm';
 import { useGuestFormSubmission } from '@/hooks/useGuestFormSubmission';
 
@@ -24,7 +23,28 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
   const { formData, updateField, resetForm } = useGuestForm(initialData);
   const { submitForm, isSubmitting } = useGuestFormSubmission();
 
+  // Additional state for extended form fields
+  const [connections, setConnections] = useState<Array<{ name: string; relationship: string }>>(
+    initialData?.connections || []
+  );
+  const [importantDates, setImportantDates] = useState<Array<{ event: string; date: string }>>(
+    initialData?.importantDates || []
+  );
+  const [preferences, setPreferences] = useState({
+    food: initialData?.foodPreferences?.map((p: any) => p.value) || [],
+    wine: initialData?.winePreferences?.map((p: any) => p.value) || [],
+    cocktail: initialData?.cocktailPreferences?.map((p: any) => p.value) || [],
+    spirits: initialData?.spiritsPreferences?.map((p: any) => p.value) || [],
+  });
+
   console.log('GuestFormContainer formData:', formData);
+
+  const handlePreferencesChange = (category: string, newPreferences: string[]) => {
+    setPreferences(prev => ({
+      ...prev,
+      [category]: newPreferences
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +59,14 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
     }
 
     try {
-      await submitForm(formData, mode === 'edit' ? initialData?.id : undefined);
+      // Update formData with connections and important dates
+      const updatedFormData = {
+        ...formData,
+        connections,
+        importantDates
+      };
+      
+      await submitForm(updatedFormData, mode === 'edit' ? initialData?.id : undefined);
       
       if (mode === 'create') {
         resetForm();
@@ -63,10 +90,16 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <GuestFormFields formData={formData} updateField={updateField} />
-      <PreferencesSections 
-        formData={formData} 
+      <ExtendedGuestFormFields
+        formData={formData}
         updateField={updateField}
+        customerId={mode === 'edit' ? initialData?.id : undefined}
+        connections={connections}
+        importantDates={importantDates}
+        onConnectionsChange={setConnections}
+        onImportantDatesChange={setImportantDates}
+        preferences={preferences}
+        onPreferencesChange={handlePreferencesChange}
       />
       
       <div className="flex gap-2 pt-4">
