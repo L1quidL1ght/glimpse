@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus, Users } from 'lucide-react';
-import CustomerAutocomplete from './CustomerAutocomplete';
+import EnhancedCustomerAutocomplete from './EnhancedCustomerAutocomplete';
 
 interface Connection {
   name: string;
@@ -60,7 +60,7 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-        <CustomerAutocomplete
+        <EnhancedCustomerAutocomplete
           value={selectedCustomer}
           onSelect={setSelectedCustomer}
           placeholder="Select guest..."

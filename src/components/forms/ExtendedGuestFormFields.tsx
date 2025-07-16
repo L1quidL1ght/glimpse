@@ -1,7 +1,11 @@
 
 import React from 'react';
 import { GuestFormData } from '@/hooks/useGuestForm';
-import GuestFormFields from './GuestFormFields';
+import BasicInfoFields from './BasicInfoFields';
+import TagsInput from './TagsInput';
+import TablePreferencesInput from './TablePreferencesInput';
+import AllergiesInput from './AllergiesInput';
+import ImportantNotablesInput from './ImportantNotablesInput';
 import ConnectionsManager from './ConnectionsManager';
 import ImportantDatesManager from './ImportantDatesManager';
 import PreferencesSections from './PreferencesSections';
@@ -38,32 +42,41 @@ const ExtendedGuestFormFields: React.FC<ExtendedGuestFormFieldsProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <GuestFormFields
-        formData={formData}
-        updateField={updateField}
+      {/* Basic info fields */}
+      <BasicInfoFields 
+        formData={formData} 
+        updateField={updateField} 
         existingPhoneNumbers={existingPhoneNumbers}
       />
       
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">Additional Information</h3>
+      {/* Important dates and connections after phone field */}
+      <div className="space-y-4">
+        <ConnectionsManager
+          connections={connections}
+          onConnectionsChange={onConnectionsChange}
+          excludeCustomerId={customerId}
+        />
         
-        <div className="space-y-6">
-          <ConnectionsManager
-            connections={connections}
-            onConnectionsChange={onConnectionsChange}
-            excludeCustomerId={customerId}
-          />
-          
-          <ImportantDatesManager
-            dates={importantDates}
-            onDatesChange={onImportantDatesChange}
-          />
-          
-          <PreferencesSections
-            formData={formData}
-            updateField={updateField}
-          />
-        </div>
+        <ImportantDatesManager
+          dates={importantDates}
+          onDatesChange={onImportantDatesChange}
+        />
+      </div>
+      
+      {/* Rest of the form fields */}
+      <div className="space-y-4">
+        <TagsInput formData={formData} updateField={updateField} />
+        <TablePreferencesInput formData={formData} updateField={updateField} />
+        <AllergiesInput formData={formData} updateField={updateField} />
+        <ImportantNotablesInput formData={formData} updateField={updateField} />
+      </div>
+      
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Preferences</h3>
+        <PreferencesSections
+          formData={formData}
+          updateField={updateField}
+        />
       </div>
     </div>
   );

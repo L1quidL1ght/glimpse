@@ -181,6 +181,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          is_temporary: boolean
           member_id: string | null
           name: string
           phone: string | null
@@ -191,6 +192,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          is_temporary?: boolean
           member_id?: string | null
           name: string
           phone?: string | null
@@ -201,6 +203,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          is_temporary?: boolean
           member_id?: string | null
           name?: string
           phone?: string | null

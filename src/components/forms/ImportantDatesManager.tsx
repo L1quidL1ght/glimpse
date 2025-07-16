@@ -1,12 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { MonthDayPicker } from '@/components/ui/month-day-picker';
-import { X, Plus, Calendar, CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { X, Plus, Calendar } from 'lucide-react';
 
 interface ImportantDate {
   event: string;
@@ -23,14 +20,22 @@ const ImportantDatesManager: React.FC<ImportantDatesManagerProps> = ({
   onDatesChange
 }) => {
   const [event, setEvent] = useState('Birthday');
-  const [selectedDate, setSelectedDate] = useState<{ month: number; day: number } | undefined>();
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedDay, setSelectedDay] = useState<string>('');
 
   const eventOptions = ['Birthday', 'Anniversary'];
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  // Generate days 1-31
+  const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString());
 
   const addDate = () => {
-    if (event.trim() && selectedDate) {
-      const dateString = `${selectedDate.month.toString().padStart(2, '0')}-${selectedDate.day.toString().padStart(2, '0')}`;
+    if (event.trim() && selectedMonth && selectedDay) {
+      const monthIndex = months.indexOf(selectedMonth) + 1;
+      const dateString = `${monthIndex.toString().padStart(2, '0')}-${selectedDay.padStart(2, '0')}`;
       const newDate = {
         event: event.trim(),
         date: dateString
@@ -38,7 +43,8 @@ const ImportantDatesManager: React.FC<ImportantDatesManagerProps> = ({
       
       onDatesChange([...dates, newDate]);
       setEvent('Birthday');
-      setSelectedDate(undefined);
+      setSelectedMonth('');
+      setSelectedDay('');
     }
   };
 
@@ -59,7 +65,7 @@ const ImportantDatesManager: React.FC<ImportantDatesManagerProps> = ({
         <label className="text-sm font-medium text-foreground">Important Dates</label>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Select value={event} onValueChange={setEvent}>
           <SelectTrigger>
             <SelectValue placeholder="Select event type" />
@@ -73,40 +79,38 @@ const ImportantDatesManager: React.FC<ImportantDatesManagerProps> = ({
           </SelectContent>
         </Select>
 
-        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "justify-start text-left font-normal",
-                !selectedDate && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {selectedDate ? (
-                formatDisplayDate(`${selectedDate.month.toString().padStart(2, '0')}-${selectedDate.day.toString().padStart(2, '0')}`)
-              ) : (
-                <span>Pick a date</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <MonthDayPicker
-              selected={selectedDate}
-              onSelect={(date) => {
-                setSelectedDate(date);
-                setIsCalendarOpen(false);
-              }}
-            />
-          </PopoverContent>
-        </Popover>
+        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+          <SelectTrigger>
+            <SelectValue placeholder="Month" />
+          </SelectTrigger>
+          <SelectContent>
+            {months.map((month) => (
+              <SelectItem key={month} value={month}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedDay} onValueChange={setSelectedDay}>
+          <SelectTrigger>
+            <SelectValue placeholder="Day" />
+          </SelectTrigger>
+          <SelectContent className="max-h-60">
+            {days.map((day) => (
+              <SelectItem key={day} value={day}>
+                {day}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <Button 
           type="button" 
           variant="outline" 
           size="sm" 
           onClick={addDate}
-          disabled={!event.trim() || !selectedDate}
+          disabled={!event.trim() || !selectedMonth || !selectedDay}
         >
           <Plus className="w-4 h-4" />
         </Button>
