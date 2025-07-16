@@ -7,6 +7,7 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -15,6 +16,15 @@ export const useAuth = () => {
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
+        
+        // Fetch user profile when authenticated
+        if (session?.user) {
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
+        } else {
+          setUserProfile(null);
+        }
       }
     );
 
@@ -23,10 +33,33 @@ export const useAuth = () => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching user profile:', error);
+        return;
+      }
+      
+      setUserProfile(data);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+  };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -42,6 +75,10 @@ export const useAuth = () => {
     session,
     isLoading,
     signOut,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    userProfile,
+    isAdmin: userProfile?.role === 'admin',
+    isManager: userProfile?.role === 'manager',
+    isStaff: userProfile?.role === 'staff'
   };
 };

@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, LogOut } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { Plus } from 'lucide-react';
 import Logo from '@/components/Logo';
+import UserMenu from './UserMenu';
 
 interface DashboardHeaderProps {
   onAddGuest: () => void;
@@ -13,55 +12,28 @@ interface DashboardHeaderProps {
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
   onAddGuest
 }) => {
-  const { signOut } = useAuth();
-  const { toast } = useToast();
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
-  const handleSignOut = async () => {
-    setIsSigningOut(true);
-    try {
-      const { error } = await signOut();
-      if (error) throw error;
-      
-      toast({
-        title: "Signed Out",
-        description: "You have been successfully signed out"
-      });
-      
-      // Redirect to home page
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Error signing out:', error);
-      toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSigningOut(false);
-    }
-  };
 
   return (
-    <div className="flex items-center justify-between">
-      <Logo />
-      <div className="flex items-center gap-2">
-        <Button 
-          onClick={onAddGuest}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Add Guest
-        </Button>
-        <Button
-          variant="outline"
-          onClick={handleSignOut}
-          disabled={isSigningOut}
-          className="flex items-center gap-2"
-        >
-          <LogOut className="w-4 h-4" />
-          {isSigningOut ? 'Signing Out...' : 'Log Out'}
-        </Button>
+    <div className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 items-center justify-between px-6">
+        <div className="flex items-center space-x-4">
+          <Logo />
+          <div>
+            <h1 className="text-xl font-semibold">Guest Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Manage your restaurant guests</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          <Button 
+            onClick={onAddGuest}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Guest
+          </Button>
+          <UserMenu />
+        </div>
       </div>
     </div>
   );

@@ -1,45 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { Shield } from 'lucide-react';
+import { Building, Users, ShieldCheck } from 'lucide-react';
 import Logo from '@/components/Logo';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [passcode, setPasscode] = useState('');
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // Admin passcode - concealed from view
-  const ADMIN_PASSCODE = '1234';
-
-  const handleLogin = () => {
-    if (passcode.length !== 4) {
-      toast({
-        title: "Invalid Passcode",
-        description: "Please enter a 4-digit passcode",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (passcode === ADMIN_PASSCODE) {
-      toast({
-        title: "Admin Access Granted",
-        description: "Welcome to the admin dashboard"
-      });
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
       navigate('/dashboard');
-    } else {
-      toast({
-        title: "Access Denied",
-        description: "Invalid passcode. Please try again.",
-        variant: "destructive"
-      });
-      setPasscode('');
     }
-  };
+  }, [isAuthenticated, isLoading, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-accent/30 flex items-center justify-center p-4">
@@ -51,37 +26,40 @@ const Index = () => {
           <Logo className="scale-125" />
         </div>
 
-        {/* Admin Login */}
-        <div className="space-y-6">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center justify-center gap-3">
-              <Shield className="w-6 h-6" />
-              Admin Access
+        {/* Welcome Content */}
+        <div className="space-y-6 text-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-4 flex items-center justify-center gap-3">
+              <Building className="w-8 h-8" />
+              Restaurant Management
             </h1>
-            <p className="text-muted-foreground">Enter your 4-digit passcode</p>
+            <p className="text-muted-foreground text-lg">
+              Secure guest management system for restaurant staff
+            </p>
           </div>
 
-          <div className="flex justify-center">
-            <InputOTP
-              value={passcode}
-              onChange={setPasscode}
-              maxLength={4}
-            >
-              <InputOTPGroup>
-                <InputOTPSlot index={0} />
-                <InputOTPSlot index={1} />
-                <InputOTPSlot index={2} />
-                <InputOTPSlot index={3} />
-              </InputOTPGroup>
-            </InputOTP>
+          <div className="grid grid-cols-1 gap-4 my-8">
+            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-lg border border-border/30">
+              <Users className="w-6 h-6 text-primary" />
+              <div className="text-left">
+                <h3 className="font-semibold">Guest Management</h3>
+                <p className="text-sm text-muted-foreground">Track preferences, visits, and reservations</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-lg border border-border/30">
+              <ShieldCheck className="w-6 h-6 text-primary" />
+              <div className="text-left">
+                <h3 className="font-semibold">Secure Access</h3>
+                <p className="text-sm text-muted-foreground">Role-based authentication for staff</p>
+              </div>
+            </div>
           </div>
 
           <Button
-            onClick={handleLogin}
-            disabled={passcode.length !== 4}
-            className="w-full h-12 text-lg bg-primary hover:bg-primary/90"
+            onClick={() => navigate('/auth')}
+            className="w-full h-12 text-lg"
           >
-            Access Dashboard
+            Staff Login
           </Button>
         </div>
       </Card>
