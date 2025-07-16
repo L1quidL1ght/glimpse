@@ -9,13 +9,23 @@ export const useStaffUsers = () => {
   return useQuery({
     queryKey: STAFF_USERS_QUERY_KEY,
     queryFn: async (): Promise<StaffUser[]> => {
+      console.log('Fetching staff users...');
+      
       const { data, error } = await supabase.functions.invoke('staff-management', {
         body: { action: 'list' },
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(`Failed to fetch staff users: ${error.message}`);
+      }
+      
+      if (data.error) {
+        console.error('Function returned error:', data.error);
+        throw new Error(data.error);
+      }
 
+      console.log(`Retrieved ${data.data?.length || 0} staff users`);
       return data.data || [];
     },
   });
@@ -27,13 +37,23 @@ export const useCreateStaffUser = () => {
 
   return useMutation({
     mutationFn: async (userData: { name: string; pin: string; role: string }) => {
+      console.log('Creating staff user:', { name: userData.name, role: userData.role });
+      
       const { data, error } = await supabase.functions.invoke('staff-management', {
         body: { ...userData, action: 'create' },
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      if (error) {
+        console.error('Error creating staff user:', error);
+        throw new Error(`Failed to create staff user: ${error.message}`);
+      }
+      
+      if (data.error) {
+        console.error('Function returned error:', data.error);
+        throw new Error(data.error);
+      }
 
+      console.log('Staff user created successfully:', data.data);
       return data.data;
     },
     onSuccess: () => {
@@ -54,13 +74,23 @@ export const useUpdateStaffUser = () => {
       role?: string; 
       is_active?: boolean;
     }) => {
+      console.log('Updating staff user:', userData.id);
+      
       const { data, error } = await supabase.functions.invoke('staff-management', {
         body: { ...userData, action: 'update' },
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      if (error) {
+        console.error('Error updating staff user:', error);
+        throw new Error(`Failed to update staff user: ${error.message}`);
+      }
+      
+      if (data.error) {
+        console.error('Function returned error:', data.error);
+        throw new Error(data.error);
+      }
 
+      console.log('Staff user updated successfully:', data.data);
       return data.data;
     },
     onSuccess: () => {
@@ -75,13 +105,23 @@ export const useDeleteStaffUser = () => {
 
   return useMutation({
     mutationFn: async (userId: string) => {
+      console.log('Deleting staff user:', userId);
+      
       const { data, error } = await supabase.functions.invoke('staff-management', {
         body: { id: userId, action: 'delete' },
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      if (error) {
+        console.error('Error deleting staff user:', error);
+        throw new Error(`Failed to delete staff user: ${error.message}`);
+      }
+      
+      if (data.error) {
+        console.error('Function returned error:', data.error);
+        throw new Error(data.error);
+      }
 
+      console.log('Staff user deleted successfully');
       return data;
     },
     onSuccess: () => {
