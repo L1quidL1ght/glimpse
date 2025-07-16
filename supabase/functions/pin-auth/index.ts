@@ -12,7 +12,7 @@ interface AuthRequest {
 interface StaffUser {
   id: string
   name: string
-  pin_hash: string
+  pin: string
   role: string
   is_active: boolean
 }
@@ -32,9 +32,10 @@ Deno.serve(async (req) => {
 
     const { pin }: AuthRequest = await req.json()
 
-    if (!pin || pin.length !== 4) {
+    // Validate PIN format (exactly 4 digits)
+    if (!pin || !/^\d{4}$/.test(pin)) {
       return new Response(
-        JSON.stringify({ error: 'Invalid PIN format. PIN must be 4 digits.' }),
+        JSON.stringify({ error: 'PIN must be exactly 4 digits' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -42,32 +43,18 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Get all active staff users
-    const { data: staffUsers, error } = await supabaseClient
+    console.log(`Authentication attempt with PIN: ${pin}`)
+
+    // Find user with matching PIN
+    const { data: authenticatedUser, error } = await supabaseClient
       .from('staff_users')
-      .select('*')
+      .select('id, name, role, pin')
+      .eq('pin', pin)
       .eq('is_active', true)
+      .single()
 
-    if (error) {
-      console.error('Database error:', error)
-      return new Response(
-        JSON.stringify({ error: 'Authentication failed' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
-    }
-
-    // Simple hash comparison for PIN (in production, use proper bcrypt comparison)
-    const authenticatedUser = staffUsers?.find((user: StaffUser) => {
-      // For demo purposes, comparing against hashed PIN
-      // In production, use proper bcrypt comparison
-      const expectedHash = '$2b$10$N9qo8uLOickgx2ZMRZoMye1sxDe8J.A9.8zWm7WUE2T.K.sR1B2LS' // PIN 1234
-      return pin === '1234' && user.pin_hash === expectedHash
-    })
-
-    if (!authenticatedUser) {
+    if (error || !authenticatedUser) {
+      console.log('Authentication failed: Invalid PIN')
       return new Response(
         JSON.stringify({ error: 'Invalid PIN' }),
         { 
@@ -76,6 +63,8 @@ Deno.serve(async (req) => {
         }
       )
     }
+
+    console.log(`Authentication successful for user: ${authenticatedUser.name} (${authenticatedUser.role})`)
 
     // Generate session token (simple UUID for demo - in production use JWT)
     const sessionToken = crypto.randomUUID()

@@ -49,10 +49,10 @@ export const AddStaffUserDialog: React.FC<AddStaffUserDialogProps> = ({
       return;
     }
 
-    if (!pin || pin.length < 4) {
+    if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
       toast({
         title: "Error",
-        description: "PIN must be at least 4 digits",
+        description: "PIN must be exactly 4 digits",
         variant: "destructive",
       });
       return;
@@ -126,26 +126,25 @@ export const AddStaffUserDialog: React.FC<AddStaffUserDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="pin">PIN (4-6 digits)</Label>
+            <Label htmlFor="pin">PIN (exactly 4 digits)</Label>
             <div className="flex justify-center">
               <InputOTP
-                maxLength={6}
+                maxLength={4}
                 value={pin}
                 onChange={setPin}
                 disabled={createMutation.isPending}
+                pattern="[0-9]*"
               >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
                   <InputOTPSlot index={2} />
                   <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
             </div>
             <p className="text-xs text-muted-foreground text-center">
-              Enter a secure PIN that the user will use to sign in
+              Enter a unique 4-digit PIN that the user will use to sign in
             </p>
           </div>
 

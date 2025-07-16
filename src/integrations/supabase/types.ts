@@ -473,7 +473,7 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
-          pin_hash: string
+          pin: string
           role: string
           updated_at: string
         }
@@ -482,7 +482,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name: string
-          pin_hash: string
+          pin: string
           role?: string
           updated_at?: string
         }
@@ -491,7 +491,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name?: string
-          pin_hash?: string
+          pin?: string
           role?: string
           updated_at?: string
         }

@@ -81,6 +81,11 @@ export const useAuth = () => {
 
   const signIn = async (pin: string) => {
     try {
+      // Validate PIN format (exactly 4 digits)
+      if (!/^\d{4}$/.test(pin)) {
+        return { error: 'PIN must be exactly 4 digits' };
+      }
+
       const { data, error } = await supabase.functions.invoke('pin-auth', {
         body: { pin }
       });

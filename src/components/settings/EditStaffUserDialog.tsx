@@ -62,10 +62,10 @@ export const EditStaffUserDialog: React.FC<EditStaffUserDialogProps> = ({
       return;
     }
 
-    if (pin && pin.length < 4) {
+    if (pin && (pin.length !== 4 || !/^\d{4}$/.test(pin))) {
       toast({
         title: "Error",
-        description: "PIN must be at least 4 digits",
+        description: "PIN must be exactly 4 digits",
         variant: "destructive",
       });
       return;
@@ -152,26 +152,25 @@ export const EditStaffUserDialog: React.FC<EditStaffUserDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="pin">New PIN (leave empty to keep current)</Label>
+            <Label htmlFor="pin">New PIN (exactly 4 digits, leave empty to keep current)</Label>
             <div className="flex justify-center">
               <InputOTP
-                maxLength={6}
+                maxLength={4}
                 value={pin}
                 onChange={setPin}
                 disabled={updateMutation.isPending}
+                pattern="[0-9]*"
               >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
                   <InputOTPSlot index={2} />
                   <InputOTPSlot index={3} />
-                  <InputOTPSlot index={4} />
-                  <InputOTPSlot index={5} />
                 </InputOTPGroup>
               </InputOTP>
             </div>
             <p className="text-xs text-muted-foreground text-center">
-              Only enter a new PIN if you want to change it
+              Only enter a new 4-digit PIN if you want to change it
             </p>
           </div>
 
