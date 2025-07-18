@@ -8,9 +8,9 @@ export const customerDataService = {
       .from('customers')
       .insert({
         name: formData.name.trim(),
-        email: formData.email.trim() || null,
-        phone: formData.phone.trim() || null,
-        member_id: formData.memberId.trim() || null,
+        email: formData.email?.trim() || null,
+        phone: formData.phone?.trim() || null,
+        member_id: formData.memberId?.trim() || null,
       })
       .select()
       .single();
@@ -24,9 +24,9 @@ export const customerDataService = {
       .from('customers')
       .update({
         name: formData.name.trim(),
-        email: formData.email.trim() || null,
-        phone: formData.phone.trim() || null,
-        member_id: formData.memberId.trim() || null,
+        email: formData.email?.trim() || null,
+        phone: formData.phone?.trim() || null,
+        member_id: formData.memberId?.trim() || null,
       })
       .eq('id', customerId);
 

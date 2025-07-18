@@ -37,6 +37,7 @@ export const useGuestFormSubmission = () => {
       ]);
 
       console.log('Guest saved successfully:', customer);
+      return customer;
     } finally {
       setIsSubmitting(false);
     }

@@ -26,7 +26,7 @@ const BasicInfoFields: React.FC<BasicInfoFieldsProps> = ({
     <div className="space-y-4">
       {/* Basic Information */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Name *</label>
+        <label className="text-sm font-medium text-foreground">Name</label>
         <Input
           value={formData.name}
           onChange={(e) => updateField('name', e.target.value)}
