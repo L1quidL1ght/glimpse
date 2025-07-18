@@ -47,7 +47,7 @@ const ReservationDialog: React.FC<ReservationDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {reservation ? 'Edit Reservation' : 'New Reservation'}

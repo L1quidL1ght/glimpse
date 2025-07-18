@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,6 +34,8 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
   const [tempName, setTempName] = useState('');
   const [tempPhone, setTempPhone] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const { toast } = useToast();
 
   const searchCustomers = async (searchTerm: string) => {
@@ -74,10 +77,22 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
     return () => clearTimeout(timeoutId);
   }, [value, excludeCustomerId]);
 
+  const updateDropdownPosition = () => {
+    if (inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     onSelect(newValue);
     setIsOpen(true);
+    updateDropdownPosition();
   };
 
   const handleCustomerSelect = (customer: Customer) => {
@@ -89,6 +104,7 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
     setShowTempForm(true);
     setTempName(value);
     setIsOpen(false);
+    updateDropdownPosition();
   };
 
   const createTemporaryGuest = async () => {
@@ -146,104 +162,140 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
     customer.name.toLowerCase() === value.toLowerCase()
   );
 
+  const renderDropdown = () => {
+    if (!isOpen && !showTempForm) return null;
+
+    const content = isOpen ? (
+      <Card 
+        className="absolute z-[60] mt-1 max-h-60 overflow-y-auto bg-background border shadow-lg"
+        style={{
+          top: `${dropdownPosition.top}px`,
+          left: `${dropdownPosition.left}px`,
+          width: `${dropdownPosition.width}px`
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-3 text-sm text-muted-foreground">Searching...</div>
+          ) : (
+            <>
+              {customers.map((customer) => (
+                <button
+                  key={customer.id}
+                  className="w-full text-left p-3 hover:bg-muted border-b border-border last:border-b-0 flex items-center justify-between"
+                  onClick={() => handleCustomerSelect(customer)}
+                >
+                  <div>
+                    <div className="font-medium">{customer.name}</div>
+                    {customer.phone && (
+                      <div className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Phone className="w-3 h-3" />
+                        {customer.phone}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))}
+              
+              {value.trim() && !hasExactMatch && !loading && (
+                <button
+                  className="w-full text-left p-3 hover:bg-muted border-t border-border flex items-center gap-2 text-primary"
+                  onClick={handleShowTempForm}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Temporary Guest</span>
+                </button>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+    ) : (
+      <Card 
+        className="absolute z-[60] mt-1 bg-background border shadow-lg"
+        style={{
+          top: `${dropdownPosition.top}px`,
+          left: `${dropdownPosition.left}px`,
+          width: `${dropdownPosition.width}px`
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center gap-2 mb-2">
+            <User className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">Add Temporary Guest</span>
+          </div>
+          
+          <div className="space-y-2">
+            <Input
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              placeholder="Name (required)"
+              autoFocus
+            />
+            <Input
+              value={tempPhone}
+              onChange={(e) => setTempPhone(e.target.value)}
+              placeholder="Phone (optional)"
+            />
+          </div>
+          
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={createTemporaryGuest}
+              disabled={!tempName.trim() || isCreating}
+              className="flex items-center gap-1"
+            >
+              <Check className="w-4 h-4" />
+              {isCreating ? 'Creating...' : 'Create'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={cancelTempForm}
+              disabled={isCreating}
+              className="flex items-center gap-1"
+            >
+              <X className="w-4 h-4" />
+              Cancel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+
+    return createPortal(
+      <div 
+        className="fixed inset-0 z-[50]" 
+        onClick={() => {
+          setIsOpen(false);
+          setShowTempForm(false);
+        }}
+      >
+        {content}
+      </div>,
+      document.body
+    );
+  };
+
   return (
     <div className="relative">
       <Input
+        ref={inputRef}
         value={value}
         onChange={handleInputChange}
-        onFocus={() => setIsOpen(true)}
+        onFocus={() => {
+          setIsOpen(true);
+          updateDropdownPosition();
+        }}
         onBlur={() => setTimeout(() => setIsOpen(false), 200)}
         placeholder={placeholder}
       />
-
-      {isOpen && (
-        <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto">
-          <CardContent className="p-0">
-            {loading ? (
-              <div className="p-3 text-sm text-muted-foreground">Searching...</div>
-            ) : (
-              <>
-                {customers.map((customer) => (
-                  <button
-                    key={customer.id}
-                    className="w-full text-left p-3 hover:bg-muted border-b border-border last:border-b-0 flex items-center justify-between"
-                    onClick={() => handleCustomerSelect(customer)}
-                  >
-                    <div>
-                      <div className="font-medium">{customer.name}</div>
-                      {customer.phone && (
-                        <div className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          {customer.phone}
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                ))}
-                
-                {value.trim() && !hasExactMatch && !loading && (
-                  <button
-                    className="w-full text-left p-3 hover:bg-muted border-t border-border flex items-center gap-2 text-primary"
-                    onClick={handleShowTempForm}
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Temporary Guest</span>
-                  </button>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {showTempForm && (
-        <Card className="absolute top-full left-0 right-0 z-50 mt-1">
-          <CardContent className="p-4 space-y-3">
-            <div className="flex items-center gap-2 mb-2">
-              <User className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Add Temporary Guest</span>
-            </div>
-            
-            <div className="space-y-2">
-              <Input
-                value={tempName}
-                onChange={(e) => setTempName(e.target.value)}
-                placeholder="Name (required)"
-                autoFocus
-              />
-              <Input
-                value={tempPhone}
-                onChange={(e) => setTempPhone(e.target.value)}
-                placeholder="Phone (optional)"
-              />
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                size="sm"
-                onClick={createTemporaryGuest}
-                disabled={!tempName.trim() || isCreating}
-                className="flex items-center gap-1"
-              >
-                <Check className="w-4 h-4" />
-                {isCreating ? 'Creating...' : 'Create'}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={cancelTempForm}
-                disabled={isCreating}
-                className="flex items-center gap-1"
-              >
-                <X className="w-4 h-4" />
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {renderDropdown()}
     </div>
   );
 };
