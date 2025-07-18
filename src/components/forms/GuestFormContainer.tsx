@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import ExtendedGuestFormFields from './ExtendedGuestFormFields';
 import { useGuestForm } from '@/hooks/useGuestForm';
 import { useGuestFormSubmission } from '@/hooks/useGuestFormSubmission';
+import { AppErrorHandler } from '@/utils/errorHandling';
 
 interface GuestFormContainerProps {
   mode: 'create' | 'edit';
@@ -21,7 +22,14 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
 }) => {
   const { toast } = useToast();
   const { formData, updateField, resetForm } = useGuestForm(initialData);
-  const { submitForm, isSubmitting } = useGuestFormSubmission();
+  const { submitForm, isSubmitting, lastError, clearError } = useGuestFormSubmission();
+
+  // Clear any previous errors when form data changes
+  React.useEffect(() => {
+    if (lastError) {
+      clearError();
+    }
+  }, [formData, lastError, clearError]);
 
   // Additional state for extended form fields
   const [connections, setConnections] = useState<Array<{ name: string; relationship: string }>>(
@@ -52,7 +60,7 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
     // Only validate that name is provided - all other fields are optional
     if (!formData.name.trim()) {
       toast({
-        title: "Error",
+        title: "Validation Error",
         description: "Guest name is required",
         variant: "destructive",
       });
@@ -79,13 +87,30 @@ const GuestFormContainer: React.FC<GuestFormContainerProps> = ({
         title: "Success",
         description: `Guest ${mode === 'edit' ? 'updated' : 'added'} successfully!`,
       });
-    } catch (error) {
+
+      // Show warning if there were partial failures
+      if (lastError) {
+        setTimeout(() => {
+          toast({
+            title: "Warning",
+            description: lastError,
+            variant: "default"
+          });
+        }, 1000);
+      }
+    } catch (error: any) {
       console.error(`Error ${mode === 'edit' ? 'updating' : 'adding'} guest:`, error);
-      toast({
-        title: "Error",
-        description: `Failed to ${mode === 'edit' ? 'update' : 'add'} guest. Please try again.`,
-        variant: "destructive",
-      });
+      
+      // Handle different error types with specific messages
+      const errorConfig = error?.type ? 
+        AppErrorHandler.getToastConfig(error) : 
+        {
+          title: "Error",
+          description: error?.message || `Failed to ${mode === 'edit' ? 'update' : 'add'} guest. Please try again.`,
+          variant: "destructive" as const
+        };
+
+      toast(errorConfig);
     }
   };
 
