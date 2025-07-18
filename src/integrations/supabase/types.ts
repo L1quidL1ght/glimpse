@@ -470,6 +470,36 @@ export type Database = {
           },
         ]
       }
+      staff_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean
+          session_token: string
+          staff_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean
+          session_token: string
+          staff_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean
+          session_token?: string
+          staff_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       staff_users: {
         Row: {
           created_at: string
@@ -678,6 +708,14 @@ export type Database = {
       }
       is_authenticated_user: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_staff_authenticated: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_staff_authenticated_with_token: {
+        Args: { session_token: string }
         Returns: boolean
       }
       upsert_preference_option: {
