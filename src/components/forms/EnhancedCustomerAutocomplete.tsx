@@ -184,7 +184,10 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
                 <button
                   key={customer.id}
                   className="w-full text-left p-3 hover:bg-muted border-b border-border last:border-b-0 flex items-center justify-between"
-                  onClick={() => handleCustomerSelect(customer)}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleCustomerSelect(customer);
+                  }}
                 >
                   <div>
                     <div className="font-medium">{customer.name}</div>
@@ -201,7 +204,10 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
               {value.trim() && !hasExactMatch && !loading && (
                 <button
                   className="w-full text-left p-3 hover:bg-muted border-t border-border flex items-center gap-2 text-primary"
-                  onClick={handleShowTempForm}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleShowTempForm();
+                  }}
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Temporary Guest</span>
