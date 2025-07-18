@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus, Users } from 'lucide-react';
-import EnhancedCustomerAutocomplete from './EnhancedCustomerAutocomplete';
+import ConnectionsCombobox from './ConnectionsCombobox';
 
 interface Connection {
   name: string;
@@ -23,13 +23,6 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
   excludeCustomerId
 }) => {
   const [selectedCustomer, setSelectedCustomer] = useState('');
-  
-  // Debug logging
-  const handleCustomerSelect = (customerName: string) => {
-    console.log('ConnectionsManager: received customer name:', customerName);
-    setSelectedCustomer(customerName);
-    console.log('ConnectionsManager: state should be updated to:', customerName);
-  };
   const [relationship, setRelationship] = useState('');
 
   const addConnection = () => {
@@ -67,9 +60,9 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-        <EnhancedCustomerAutocomplete
+        <ConnectionsCombobox
           value={selectedCustomer}
-          onSelect={handleCustomerSelect}
+          onSelect={setSelectedCustomer}
           placeholder="Select guest..."
           excludeCustomerId={excludeCustomerId}
         />
