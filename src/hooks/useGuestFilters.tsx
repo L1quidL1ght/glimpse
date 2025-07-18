@@ -36,35 +36,63 @@ export const useGuestFilters = (customers: Customer[]) => {
   // Fetch filtered customers from database when birthday or anniversary filters are active
   useEffect(() => {
     const fetchFilteredCustomers = async () => {
+      console.log('🔍 Fetching filtered customers with filters:', activeFilters);
       let dbResults: Customer[] = [];
 
-      if (activeFilters.birthdayMonth) {
-        const { data } = await supabase.rpc('get_guests_by_birthday_month', {
-          month_num: parseInt(activeFilters.birthdayMonth)
-        });
-        if (data) dbResults = [...dbResults, ...data];
+      try {
+        if (activeFilters.birthdayMonth) {
+          console.log('🎂 Fetching birthday month:', activeFilters.birthdayMonth);
+          const { data, error } = await supabase.rpc('get_guests_by_birthday_month', {
+            month_num: parseInt(activeFilters.birthdayMonth)
+          });
+          
+          if (error) {
+            console.error('❌ Birthday month filter error:', error);
+          } else {
+            console.log('✅ Birthday month results:', data);
+            if (data) dbResults = [...dbResults, ...data];
+          }
+        }
+
+        if (activeFilters.anniversaryMonth) {
+          console.log('💍 Fetching anniversary month:', activeFilters.anniversaryMonth);
+          const { data, error } = await supabase.rpc('get_guests_by_anniversary_month', {
+            month_num: parseInt(activeFilters.anniversaryMonth)
+          });
+          
+          if (error) {
+            console.error('❌ Anniversary month filter error:', error);
+          } else {
+            console.log('✅ Anniversary month results:', data);
+            if (data) dbResults = [...dbResults, ...data];
+          }
+        }
+
+        if (activeFilters.tag) {
+          console.log('🏷️ Fetching tag:', activeFilters.tag);
+          const { data, error } = await supabase.rpc('get_guests_by_tag', {
+            tag_name: activeFilters.tag
+          });
+          
+          if (error) {
+            console.error('❌ Tag filter error:', error);
+          } else {
+            console.log('✅ Tag results:', data);
+            if (data) dbResults = [...dbResults, ...data];
+          }
+        }
+
+        // Remove duplicates
+        const uniqueResults = dbResults.filter((customer, index, self) =>
+          index === self.findIndex(c => c.id === customer.id)
+        );
+
+        console.log('📊 Final filtered results:', uniqueResults.length, 'customers');
+        setFilteredByDatabase(uniqueResults);
+      } catch (error) {
+        console.error('💥 Error in fetchFilteredCustomers:', error);
+        setFilteredByDatabase([]);
       }
-
-      if (activeFilters.anniversaryMonth) {
-        const { data } = await supabase.rpc('get_guests_by_anniversary_month', {
-          month_num: parseInt(activeFilters.anniversaryMonth)
-        });
-        if (data) dbResults = [...dbResults, ...data];
-      }
-
-      if (activeFilters.tag) {
-        const { data } = await supabase.rpc('get_guests_by_tag', {
-          tag_name: activeFilters.tag
-        });
-        if (data) dbResults = [...dbResults, ...data];
-      }
-
-      // Remove duplicates
-      const uniqueResults = dbResults.filter((customer, index, self) =>
-        index === self.findIndex(c => c.id === customer.id)
-      );
-
-      setFilteredByDatabase(uniqueResults);
     };
 
     if (activeFilters.birthdayMonth || activeFilters.anniversaryMonth || activeFilters.tag) {
