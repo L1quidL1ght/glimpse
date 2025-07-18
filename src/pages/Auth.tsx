@@ -14,6 +14,7 @@ const Auth = () => {
   const { signIn, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -22,11 +23,31 @@ const Auth = () => {
     }
   }, [isAuthenticated, navigate]);
 
+  const validatePin = (pinValue: string) => {
+    if (pinValue.length === 0) {
+      setError('');
+      return true;
+    }
+    
+    if (pinValue.length !== 4) {
+      setError('PIN must be exactly 4 digits');
+      return false;
+    }
+    
+    if (!/^\d{4}$/.test(pinValue)) {
+      setError('PIN must contain only numbers');
+      return false;
+    }
+    
+    setError('');
+    return true;
+  };
+
   const handlePinSubmit = async () => {
-    if (pin.length !== 4) {
+    if (!validatePin(pin)) {
       toast({
         title: "Invalid PIN",
-        description: "Please enter a 4-digit PIN",
+        description: error,
         variant: "destructive"
       });
       return;
@@ -34,24 +55,27 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      const { error } = await signIn(pin);
+      const { error: signInError } = await signIn(pin);
 
-      if (error) {
+      if (signInError) {
+        setError('Invalid PIN');
         toast({
           title: "Authentication Failed",
-          description: error,
+          description: signInError,
           variant: "destructive"
         });
         setPin(''); // Clear the PIN on error
         return;
       }
 
+      setError('');
       toast({
         title: "Welcome",
         description: "Successfully signed in to the restaurant dashboard"
       });
       navigate('/dashboard');
     } catch (error) {
+      setError('Authentication failed');
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -65,12 +89,19 @@ const Auth = () => {
 
   const handlePinChange = (value: string) => {
     setPin(value);
-    
-    // Auto-submit when PIN is complete
-    if (value.length === 4 && !loading) {
-      setTimeout(() => {
-        handlePinSubmit();
-      }, 100);
+    // Clear error when user starts typing again
+    if (error) {
+      setError('');
+    }
+  };
+
+  const handlePinBlur = () => {
+    validatePin(pin);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && pin.length === 4) {
+      handlePinSubmit();
     }
   };
 
@@ -101,20 +132,26 @@ const Auth = () => {
                 Enter PIN
               </label>
               <div className="flex justify-center">
-                <InputOTP
-                  value={pin}
-                  onChange={handlePinChange}
-                  maxLength={4}
-                  disabled={loading}
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                  </InputOTPGroup>
-                </InputOTP>
+                <div onBlur={handlePinBlur}>
+                  <InputOTP
+                    value={pin}
+                    onChange={handlePinChange}
+                    maxLength={4}
+                    disabled={loading}
+                    onKeyDown={handleKeyDown}
+                  >
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
               </div>
+              {error && (
+                <p className="text-sm text-destructive mt-2">{error}</p>
+              )}
             </div>
 
             <Button
