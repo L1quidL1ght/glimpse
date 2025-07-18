@@ -37,7 +37,7 @@ const CustomerDashboard = () => {
   if (selectedCustomer) {
     return (
       <CustomerProfile
-        customer={selectedCustomer}
+        customerId={selectedCustomer.id}
         onBack={() => setSelectedCustomer(null)}
         allCustomers={customers}
         onGuestUpdated={handleGuestUpdated}

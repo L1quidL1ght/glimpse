@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CompactConnections from '@/components/profile/CompactConnections';
 import PreferencesGrid from '@/components/profile/PreferencesGrid';
 import SpecialNotes from '@/components/profile/SpecialNotes';
@@ -17,29 +17,93 @@ import { supabase } from '@/integrations/supabase/client';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 interface CustomerProfileProps {
-  customer: any;
+  customerId: string;
   onBack: () => void;
   allCustomers: any[];
   onGuestUpdated: () => void;
 }
 
 const CustomerProfile: React.FC<CustomerProfileProps> = ({ 
-  customer, 
+  customerId, 
   onBack, 
   allCustomers,
   onGuestUpdated
 }) => {
+  const [customer, setCustomer] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
 
+  const fetchCustomerData = async () => {
+    try {
+      setLoading(true);
+      const { data: customer, error } = await supabase
+        .from('customers')
+        .select(`
+          *,
+          customer_tags(*),
+          table_preferences(*),
+          food_preferences(*),
+          wine_preferences(*),
+          cocktail_preferences(*),
+          spirits_preferences(*),
+          allergies(*),
+          important_dates(*),
+          important_notables(*),
+          customer_notes(*),
+          connections:connections!customer_id(*,
+            connected_customer:customers!connected_customer_id(*)
+          ),
+          visits(*,
+            visit_orders(*)
+          )
+        `)
+        .eq('id', customerId)
+        .single();
+
+      if (error) throw error;
+
+      // Transform the data to match the expected format
+      const transformedCustomer = {
+        ...customer,
+        connections: customer.connections?.map((conn: any) => ({
+          ...conn,
+          customer: conn.connected_customer
+        })) || [],
+        importantNotables: customer.important_notables || [],
+        importantDates: customer.important_dates || [],
+        notes: customer.customer_notes || []
+      };
+
+      setCustomer(transformedCustomer);
+    } catch (error) {
+      console.error('Error fetching customer:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load customer data",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (customerId) {
+      fetchCustomerData();
+    }
+  }, [customerId]);
+
   const handleCustomerSelect = (selectedCustomer: any) => {
+    fetchCustomerData();
     onGuestUpdated();
   };
 
   const handleGuestUpdated = () => {
+    fetchCustomerData();
     onGuestUpdated();
   };
 
@@ -96,6 +160,40 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
       setShowDeleteDialog(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto p-6">
+          <NavigationHeader 
+            onBack={onBack}
+            showBackButton={true}
+            onAddGuest={() => setShowAddDialog(true)}
+          />
+          <div className="flex justify-center items-center h-64">
+            <div className="text-lg">Loading customer data...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!customer) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto p-6">
+          <NavigationHeader 
+            onBack={onBack}
+            showBackButton={true}
+            onAddGuest={() => setShowAddDialog(true)}
+          />
+          <div className="flex justify-center items-center h-64">
+            <div className="text-lg">Customer not found</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
