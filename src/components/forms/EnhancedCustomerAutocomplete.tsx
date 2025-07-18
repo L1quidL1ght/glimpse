@@ -96,7 +96,10 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
   };
 
   const handleCustomerSelect = (customer: Customer) => {
+    console.log('Customer selected:', customer.name);
+    console.log('About to call onSelect with:', customer.name);
     onSelect(customer.name);
+    console.log('onSelect called, closing dropdown');
     setIsOpen(false);
   };
 

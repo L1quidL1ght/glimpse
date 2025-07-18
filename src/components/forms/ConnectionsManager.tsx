@@ -23,6 +23,13 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
   excludeCustomerId
 }) => {
   const [selectedCustomer, setSelectedCustomer] = useState('');
+  
+  // Debug logging
+  const handleCustomerSelect = (customerName: string) => {
+    console.log('ConnectionsManager: received customer name:', customerName);
+    setSelectedCustomer(customerName);
+    console.log('ConnectionsManager: state should be updated to:', customerName);
+  };
   const [relationship, setRelationship] = useState('');
 
   const addConnection = () => {
@@ -62,7 +69,7 @@ const ConnectionsManager: React.FC<ConnectionsManagerProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <EnhancedCustomerAutocomplete
           value={selectedCustomer}
-          onSelect={setSelectedCustomer}
+          onSelect={handleCustomerSelect}
           placeholder="Select guest..."
           excludeCustomerId={excludeCustomerId}
         />
