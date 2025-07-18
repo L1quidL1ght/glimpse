@@ -23,6 +23,7 @@ const CustomerDashboard = () => {
     setSelectedCustomer,
     loading,
     handleGuestAdded,
+    handleGuestUpdated,
     refetch
   } = useCustomerDashboard();
 
@@ -39,6 +40,7 @@ const CustomerDashboard = () => {
         customer={selectedCustomer}
         onBack={() => setSelectedCustomer(null)}
         allCustomers={customers}
+        onGuestUpdated={handleGuestUpdated}
       />
     );
   }

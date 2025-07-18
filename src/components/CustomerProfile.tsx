@@ -20,12 +20,14 @@ interface CustomerProfileProps {
   customer: any;
   onBack: () => void;
   allCustomers: any[];
+  onGuestUpdated: () => void;
 }
 
 const CustomerProfile: React.FC<CustomerProfileProps> = ({ 
   customer, 
   onBack, 
-  allCustomers
+  allCustomers,
+  onGuestUpdated
 }) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -34,15 +36,15 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
   const { toast } = useToast();
 
   const handleCustomerSelect = (selectedCustomer: any) => {
-    window.location.reload();
+    onGuestUpdated();
   };
 
   const handleGuestUpdated = () => {
-    window.location.reload();
+    onGuestUpdated();
   };
 
   const handleGuestAdded = () => {
-    window.location.reload();
+    onGuestUpdated();
   };
 
   const handleDeleteGuest = async () => {
