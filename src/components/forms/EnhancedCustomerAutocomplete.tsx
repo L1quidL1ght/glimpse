@@ -187,8 +187,9 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
                 <button
                   key={customer.id}
                   className="w-full text-left p-3 hover:bg-muted border-b border-border last:border-b-0 flex items-center justify-between"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Button clicked for customer:', customer.name);
                     handleCustomerSelect(customer);
                   }}
                 >
@@ -280,7 +281,9 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
     return createPortal(
       <div 
         className="fixed inset-0 z-[50]" 
-        onClick={() => {
+        onMouseDown={(e) => {
+          console.log('Overlay clicked');
+          e.preventDefault();
           setIsOpen(false);
           setShowTempForm(false);
         }}
@@ -301,7 +304,13 @@ const EnhancedCustomerAutocomplete: React.FC<EnhancedCustomerAutocompleteProps> 
           setIsOpen(true);
           updateDropdownPosition();
         }}
-        onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+        onBlur={() => {
+          console.log('Input blur event triggered');
+          setTimeout(() => {
+            console.log('Closing dropdown after timeout');
+            setIsOpen(false);
+          }, 300);
+        }}
         placeholder={placeholder}
       />
       {renderDropdown()}
