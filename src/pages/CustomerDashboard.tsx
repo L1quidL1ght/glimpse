@@ -82,7 +82,6 @@ const CustomerDashboard = () => {
                 customer.phone?.includes(searchTerm)
               )}
               onCustomerSelect={setSelectedCustomer}
-              onCustomerDeleted={refetch}
             />
           </TabsContent>
 

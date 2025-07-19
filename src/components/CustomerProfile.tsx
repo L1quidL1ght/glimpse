@@ -70,42 +70,61 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
   const handleDeleteGuest = async () => {
     setDeleting(true);
     try {
+      console.log('CustomerProfile: Starting delete process for customer:', customer.id, customer.name);
+      
       // Delete all related data first (due to foreign key constraints)
+      console.log('CustomerProfile: Deleting customer tags...');
       await supabase.from('customer_tags').delete().eq('customer_id', customer.id);
+      
+      console.log('CustomerProfile: Deleting preferences...');
       await supabase.from('table_preferences').delete().eq('customer_id', customer.id);
       await supabase.from('food_preferences').delete().eq('customer_id', customer.id);
       await supabase.from('wine_preferences').delete().eq('customer_id', customer.id);
       await supabase.from('cocktail_preferences').delete().eq('customer_id', customer.id);
       await supabase.from('spirits_preferences').delete().eq('customer_id', customer.id);
       await supabase.from('allergies').delete().eq('customer_id', customer.id);
+      
+      console.log('CustomerProfile: Deleting important data...');
       await supabase.from('important_dates').delete().eq('customer_id', customer.id);
       await supabase.from('important_notables').delete().eq('customer_id', customer.id);
       await supabase.from('customer_notes').delete().eq('customer_id', customer.id);
+      
+      console.log('CustomerProfile: Deleting connections...');
       await supabase.from('connections').delete().eq('customer_id', customer.id);
       await supabase.from('connections').delete().eq('connected_customer_id', customer.id);
 
-      // Delete visits and visit orders
+      console.log('CustomerProfile: Deleting reservations...');
+      await supabase.from('reservations').delete().eq('customer_id', customer.id);
+
+      console.log('CustomerProfile: Deleting visits and visit orders...');
       const { data: visits } = await supabase.from('visits').select('id').eq('customer_id', customer.id);
-      if (visits) {
+      if (visits && visits.length > 0) {
         for (const visit of visits) {
           await supabase.from('visit_orders').delete().eq('visit_id', visit.id);
         }
         await supabase.from('visits').delete().eq('customer_id', customer.id);
       }
 
-      // Finally delete the customer
+      console.log('CustomerProfile: Deleting customer record...');
       const { error } = await supabase.from('customers').delete().eq('id', customer.id);
-      if (error) throw error;
+      if (error) {
+        console.error('CustomerProfile: Error deleting customer:', error);
+        throw error;
+      }
 
+      console.log('CustomerProfile: Customer deleted successfully');
       toast({
         title: "Success",
         description: `${customer.name} has been deleted successfully`
       });
       
-      // Navigate back to dashboard
+      // Invalidate cache and navigate back
+      await invalidateCustomerData();
+      await invalidateAllCustomers();
+      onGuestUpdated();
       onBack();
     } catch (error) {
-      console.error('Error deleting customer:', error);
+      console.error('CustomerProfile: Error deleting customer:', error);
       toast({
         title: "Error",
         description: "Failed to delete guest. Please try again.",
