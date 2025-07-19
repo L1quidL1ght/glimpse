@@ -78,9 +78,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 1 - Deleting customer tags...');
         const { data: tagsData, error: tagsError, count } = await supabase
           .from('customer_tags')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (tagsError) {
           console.error('CustomerProfile: Error deleting customer tags:', tagsError);
@@ -98,9 +98,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 2 - Deleting table preferences...');
         const { data: tablePrefsData, error: tablePrefsError, count } = await supabase
           .from('table_preferences')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (tablePrefsError) {
           console.error('CustomerProfile: Error deleting table preferences:', tablePrefsError);
@@ -118,9 +118,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 3 - Deleting food preferences...');
         const { data: foodPrefsData, error: foodPrefsError, count } = await supabase
           .from('food_preferences')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (foodPrefsError) {
           console.error('CustomerProfile: Error deleting food preferences:', foodPrefsError);
@@ -138,9 +138,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 4 - Deleting wine preferences...');
         const { data: winePrefsData, error: winePrefsError, count } = await supabase
           .from('wine_preferences')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (winePrefsError) {
           console.error('CustomerProfile: Error deleting wine preferences:', winePrefsError);
@@ -158,9 +158,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 5 - Deleting cocktail preferences...');
         const { data: cocktailPrefsData, error: cocktailPrefsError, count } = await supabase
           .from('cocktail_preferences')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (cocktailPrefsError) {
           console.error('CustomerProfile: Error deleting cocktail preferences:', cocktailPrefsError);
@@ -178,9 +178,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 6 - Deleting spirits preferences...');
         const { data: spiritsPrefsData, error: spiritsPrefsError, count } = await supabase
           .from('spirits_preferences')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (spiritsPrefsError) {
           console.error('CustomerProfile: Error deleting spirits preferences:', spiritsPrefsError);
@@ -198,9 +198,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 7 - Deleting allergies...');
         const { data: allergiesData, error: allergiesError, count } = await supabase
           .from('allergies')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (allergiesError) {
           console.error('CustomerProfile: Error deleting allergies:', allergiesError);
@@ -218,9 +218,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 8 - Deleting important dates...');
         const { data: datesData, error: datesError, count } = await supabase
           .from('important_dates')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (datesError) {
           console.error('CustomerProfile: Error deleting important dates:', datesError);
@@ -238,9 +238,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 9 - Deleting important notables...');
         const { data: notablesData, error: notablesError, count } = await supabase
           .from('important_notables')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (notablesError) {
           console.error('CustomerProfile: Error deleting important notables:', notablesError);
@@ -258,9 +258,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 10 - Deleting customer notes...');
         const { data: notesData, error: notesError, count } = await supabase
           .from('customer_notes')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (notesError) {
           console.error('CustomerProfile: Error deleting customer notes:', notesError);
@@ -278,9 +278,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 11 - Deleting connections where customer is the primary...');
         const { data: connectionsData1, error: connectionsError1, count: count1 } = await supabase
           .from('connections')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (connectionsError1) {
           console.error('CustomerProfile: Error deleting primary connections:', connectionsError1);
@@ -291,9 +291,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 11b - Deleting connections where customer is the connected one...');
         const { data: connectionsData2, error: connectionsError2, count: count2 } = await supabase
           .from('connections')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('connected_customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (connectionsError2) {
           console.error('CustomerProfile: Error deleting reverse connections:', connectionsError2);
@@ -311,9 +311,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         console.log('CustomerProfile: Step 12 - Deleting reservations...');
         const { data: reservationsData, error: reservationsError, count } = await supabase
           .from('reservations')
-          .delete()
+          .delete({ count: 'exact' })
           .eq('customer_id', customer.id)
-          .select('*', { count: 'exact' });
+          .select('*');
         
         if (reservationsError) {
           console.error('CustomerProfile: Error deleting reservations:', reservationsError);
@@ -346,9 +346,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
             try {
               const { data: ordersData, error: ordersError, count } = await supabase
                 .from('visit_orders')
-                .delete()
+                .delete({ count: 'exact' })
                 .eq('visit_id', visit.id)
-                .select('*', { count: 'exact' });
+                .select('*');
               
               if (ordersError) {
                 console.error(`CustomerProfile: Error deleting orders for visit ${visit.id}:`, ordersError);
@@ -365,9 +365,9 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           console.log('CustomerProfile: Step 13b - Deleting visits...');
           const { data: visitsData, error: visitsError, count } = await supabase
             .from('visits')
-            .delete()
+            .delete({ count: 'exact' })
             .eq('customer_id', customer.id)
-            .select('*', { count: 'exact' });
+            .select('*');
           
           if (visitsError) {
             console.error('CustomerProfile: Error deleting visits:', visitsError);
