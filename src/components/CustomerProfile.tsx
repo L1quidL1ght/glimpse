@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import CompactConnections from '@/components/profile/CompactConnections';
 import PreferencesGrid from '@/components/profile/PreferencesGrid';
 import SpecialNotes from '@/components/profile/SpecialNotes';
@@ -13,6 +13,7 @@ import ProfileCard from '@/components/profile/ProfileCard';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useCustomerData } from '@/hooks/useCustomerData';
 import { supabase } from '@/integrations/supabase/client';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
@@ -29,81 +30,29 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
   allCustomers,
   onGuestUpdated
 }) => {
-  const [customer, setCustomer] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
-
-  const fetchCustomerData = async () => {
-    try {
-      setLoading(true);
-      const { data: customer, error } = await supabase
-        .from('customers')
-        .select(`
-          *,
-          customer_tags(*),
-          table_preferences(*),
-          food_preferences(*),
-          wine_preferences(*),
-          cocktail_preferences(*),
-          spirits_preferences(*),
-          allergies(*),
-          important_dates(*),
-          important_notables(*),
-          customer_notes(*),
-          connections:connections!customer_id(*,
-            connected_customer:customers!connected_customer_id(*)
-          ),
-          visits(*,
-            visit_orders(*)
-          )
-        `)
-        .eq('id', customerId)
-        .single();
-
-      if (error) throw error;
-
-      // Transform the data to match the expected format
-      const transformedCustomer = {
-        ...customer,
-        connections: customer.connections?.map((conn: any) => ({
-          ...conn,
-          customer: conn.connected_customer
-        })) || [],
-        importantNotables: customer.important_notables || [],
-        importantDates: customer.important_dates || [],
-        notes: customer.customer_notes || []
-      };
-
-      setCustomer(transformedCustomer);
-    } catch (error) {
-      console.error('Error fetching customer:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load customer data",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (customerId) {
-      fetchCustomerData();
-    }
-  }, [customerId]);
+  
+  const { 
+    customer, 
+    isLoading, 
+    error, 
+    invalidateCustomerData, 
+    invalidateAllCustomers 
+  } = useCustomerData(customerId);
 
   const handleCustomerSelect = (selectedCustomer: any) => {
-    fetchCustomerData();
+    invalidateCustomerData();
+    invalidateAllCustomers();
     onGuestUpdated();
   };
 
   const handleGuestUpdated = () => {
-    fetchCustomerData();
+    invalidateCustomerData();
+    invalidateAllCustomers();
     onGuestUpdated();
   };
 
@@ -161,7 +110,24 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
     }
   };
 
-  if (loading) {
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-6xl mx-auto p-6">
+          <NavigationHeader 
+            onBack={onBack}
+            showBackButton={true}
+            onAddGuest={() => setShowAddDialog(true)}
+          />
+          <div className="flex justify-center items-center h-64">
+            <div className="text-lg text-destructive">Error loading customer data</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-6xl mx-auto p-6">
@@ -240,7 +206,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           {/* Right Column - Details Section */}
           <div className="lg:col-span-2 space-y-6">
             <PreferencesGrid customer={customer} />
-            <SpecialNotes notes={customer.notes} />
+            <SpecialNotes notes={customer.notes?.map((note: any) => note.note).join('\n\n') || ''} />
             <OrderHistory visits={customer.visits} />
           </div>
         </div>
