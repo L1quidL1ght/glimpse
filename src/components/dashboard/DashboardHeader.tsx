@@ -18,10 +18,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="flex h-16 items-center justify-between px-6">
         <div className="flex items-center space-x-4">
           <Logo />
-          <div>
-            <h1 className="text-xl font-semibold">Guest Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Manage your restaurant guests</p>
-          </div>
         </div>
         
         <div className="flex items-center space-x-4">
