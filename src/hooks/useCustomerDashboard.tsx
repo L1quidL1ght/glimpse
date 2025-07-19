@@ -281,19 +281,12 @@ export const useCustomerDashboard = () => {
     }
   };
 
-  // Filter customers based on search term
-  const filteredCustomers = customers.filter(customer => 
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone?.includes(searchTerm)
-  );
-
   useEffect(() => {
     fetchCustomers();
   }, []);
 
   return {
-    customers: filteredCustomers,
+    customers,
     selectedCustomer,
     searchTerm,
     setSearchTerm,
