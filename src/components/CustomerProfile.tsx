@@ -50,10 +50,17 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
     onGuestUpdated();
   };
 
-  const handleGuestUpdated = () => {
-    invalidateCustomerData();
-    invalidateAllCustomers();
+  const handleGuestUpdated = async () => {
+    console.log('CustomerProfile: handleGuestUpdated called, invalidating data for customer:', customerId);
+    
+    // Invalidate React Query cache to force refetch
+    await invalidateCustomerData();
+    await invalidateAllCustomers();
+    
+    console.log('CustomerProfile: Data invalidated, calling parent onGuestUpdated');
     onGuestUpdated();
+    
+    console.log('CustomerProfile: Guest update complete');
   };
 
   const handleGuestAdded = () => {

@@ -50,12 +50,16 @@ export const useCustomerData = (customerId: string) => {
     enabled: !!customerId,
   });
 
-  const invalidateCustomerData = () => {
-    queryClient.invalidateQueries({ queryKey: ['customer', customerId] });
+  const invalidateCustomerData = async () => {
+    console.log('useCustomerData: Invalidating customer data for ID:', customerId);
+    await queryClient.invalidateQueries({ queryKey: ['customer', customerId] });
+    console.log('useCustomerData: Customer data invalidated');
   };
 
-  const invalidateAllCustomers = () => {
-    queryClient.invalidateQueries({ queryKey: ['customers'] });
+  const invalidateAllCustomers = async () => {
+    console.log('useCustomerData: Invalidating all customers data');
+    await queryClient.invalidateQueries({ queryKey: ['customers'] });
+    console.log('useCustomerData: All customers data invalidated');
   };
 
   return {

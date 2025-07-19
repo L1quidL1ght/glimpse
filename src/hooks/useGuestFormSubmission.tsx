@@ -84,6 +84,7 @@ export const useGuestFormSubmission = () => {
       }
 
       console.log('Guest saved successfully:', customer);
+      console.log('useGuestFormSubmission: Form submission complete, returning customer data');
       return customer;
     } catch (error) {
       console.error('Failed to save guest:', error);

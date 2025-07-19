@@ -55,6 +55,8 @@ const EditGuestFormContainer: React.FC<EditGuestFormContainerProps> = ({
     setIsSubmitting(true);
 
     try {
+      console.log('EditGuestFormContainer: Starting form submission for customer:', customer?.id);
+      
       // Merge all form data including connections, dates, and preferences
       const completeFormData = {
         ...formData,
@@ -66,10 +68,18 @@ const EditGuestFormContainer: React.FC<EditGuestFormContainerProps> = ({
         spiritsPreferences: preferences.spirits.map(p => ({ value: p, isGolden: false })),
       };
 
-      await submitForm(completeFormData, customer?.id);
-      onGuestUpdated();
+      console.log('EditGuestFormContainer: Submitting form data:', completeFormData);
+      
+      const result = await submitForm(completeFormData, customer?.id);
+      
+      console.log('EditGuestFormContainer: Form submission successful, result:', result);
+      console.log('EditGuestFormContainer: Calling onGuestUpdated callback');
+      
+      await onGuestUpdated();
+      
+      console.log('EditGuestFormContainer: Guest update complete');
     } catch (error) {
-      console.error('Error updating guest:', error);
+      console.error('EditGuestFormContainer: Error updating guest:', error);
     } finally {
       setIsSubmitting(false);
     }
