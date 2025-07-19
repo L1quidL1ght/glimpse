@@ -36,7 +36,7 @@ export const useReservations = () => {
         .from('reservations')
         .select(`
           *,
-          customers (
+          customers!customer_id (
             name,
             email,
             phone
