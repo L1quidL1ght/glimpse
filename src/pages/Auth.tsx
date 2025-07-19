@@ -42,8 +42,9 @@ const Auth = () => {
     return true;
   };
 
-  const handlePinSubmit = async () => {
-    if (!validatePin(pin)) {
+  const handlePinSubmit = async (pinValue?: string) => {
+    const currentPin = pinValue || pin;
+    if (!validatePin(currentPin)) {
       toast({
         title: "Invalid PIN",
         description: error,
@@ -54,7 +55,7 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      const { error: signInError } = await signIn(pin);
+      const { error: signInError } = await signIn(currentPin);
 
       if (signInError) {
         setError('Invalid PIN');
@@ -95,7 +96,7 @@ const Auth = () => {
       }
       // Auto-submit when 4 digits are entered
       if (newPin.length === 4) {
-        setTimeout(() => handlePinSubmit(), 100);
+        setTimeout(() => handlePinSubmit(newPin), 100);
       }
     }
   };
@@ -210,7 +211,7 @@ const Auth = () => {
 
             {/* Sign In Button */}
             <Button
-              onClick={handlePinSubmit}
+              onClick={() => handlePinSubmit()}
               disabled={loading || pin.length !== 4}
               className="w-full h-12 text-lg mt-6"
             >
