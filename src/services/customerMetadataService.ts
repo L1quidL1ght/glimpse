@@ -196,14 +196,15 @@ export const customerMetadataService = {
           }
 
           if (connectedCustomer) {
-            const { error: connectionError } = await supabase.from('connections').insert({
-              customer_id: customerId,
-              connected_customer_id: connectedCustomer.id,
-              relationship: connection.relationship.trim()
+            // Use the bidirectional connection function
+            const { error: connectionError } = await supabase.rpc('create_bidirectional_connection', {
+              p_customer_id: customerId,
+              p_connected_customer_id: connectedCustomer.id,
+              p_relationship: connection.relationship.trim()
             });
 
             if (connectionError) {
-              console.warn(`Failed to save connection to "${connection.name}":`, connectionError);
+              console.warn(`Failed to save bidirectional connection to "${connection.name}":`, connectionError);
               // Don't throw - continue with other connections
             }
           } else {

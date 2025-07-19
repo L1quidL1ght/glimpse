@@ -771,6 +771,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_bidirectional_connection: {
+        Args: {
+          p_customer_id: string
+          p_connected_customer_id: string
+          p_relationship: string
+        }
+        Returns: undefined
+      }
       delete_customer_atomically: {
         Args: { customer_uuid: string }
         Returns: Json
