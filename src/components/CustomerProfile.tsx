@@ -69,6 +69,29 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
   const handleDeleteGuest = async () => {
     setDeleting(true);
     const deleteSteps = [];
+    let hasErrors = false;
+    
+    const validateDeleteOperation = (operation: string, error: any, data: any, count?: number) => {
+      if (error) {
+        console.error(`CustomerProfile: ${operation} failed:`, error);
+        console.error(`CustomerProfile: Error details:`, {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        throw new Error(`${operation} failed: ${error.message} (Code: ${error.code || 'UNKNOWN'})`);
+      }
+      
+      // Additional validation - ensure the operation response is valid
+      if (data === undefined && count === undefined) {
+        console.error(`CustomerProfile: ${operation} returned invalid response - no data or count`);
+        throw new Error(`${operation} returned invalid response`);
+      }
+      
+      console.log(`CustomerProfile: ${operation} completed successfully. Count: ${count || 0}, Data length: ${data?.length || 0}`);
+      return true;
+    };
     
     try {
       console.log('CustomerProfile: Starting comprehensive delete process for customer:', customer.id, customer.name);
@@ -82,14 +105,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (tagsError) {
-          console.error('CustomerProfile: Error deleting customer tags:', tagsError);
-          throw new Error(`Failed to delete customer tags: ${tagsError.message} (Code: ${tagsError.code})`);
-        }
+        validateDeleteOperation('Customer tags deletion', tagsError, tagsData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} customer tags`);
         deleteSteps.push(`Deleted ${count || 0} customer tags`);
       } catch (error) {
         console.error('CustomerProfile: Customer tags deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
       
@@ -102,14 +123,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (tablePrefsError) {
-          console.error('CustomerProfile: Error deleting table preferences:', tablePrefsError);
-          throw new Error(`Failed to delete table preferences: ${tablePrefsError.message} (Code: ${tablePrefsError.code})`);
-        }
+        validateDeleteOperation('Table preferences deletion', tablePrefsError, tablePrefsData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} table preferences`);
         deleteSteps.push(`Deleted ${count || 0} table preferences`);
       } catch (error) {
         console.error('CustomerProfile: Table preferences deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -122,14 +141,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (foodPrefsError) {
-          console.error('CustomerProfile: Error deleting food preferences:', foodPrefsError);
-          throw new Error(`Failed to delete food preferences: ${foodPrefsError.message} (Code: ${foodPrefsError.code})`);
-        }
+        validateDeleteOperation('Food preferences deletion', foodPrefsError, foodPrefsData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} food preferences`);
         deleteSteps.push(`Deleted ${count || 0} food preferences`);
       } catch (error) {
         console.error('CustomerProfile: Food preferences deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -142,14 +159,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (winePrefsError) {
-          console.error('CustomerProfile: Error deleting wine preferences:', winePrefsError);
-          throw new Error(`Failed to delete wine preferences: ${winePrefsError.message} (Code: ${winePrefsError.code})`);
-        }
+        validateDeleteOperation('Wine preferences deletion', winePrefsError, winePrefsData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} wine preferences`);
         deleteSteps.push(`Deleted ${count || 0} wine preferences`);
       } catch (error) {
         console.error('CustomerProfile: Wine preferences deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -162,14 +177,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (cocktailPrefsError) {
-          console.error('CustomerProfile: Error deleting cocktail preferences:', cocktailPrefsError);
-          throw new Error(`Failed to delete cocktail preferences: ${cocktailPrefsError.message} (Code: ${cocktailPrefsError.code})`);
-        }
+        validateDeleteOperation('Cocktail preferences deletion', cocktailPrefsError, cocktailPrefsData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} cocktail preferences`);
         deleteSteps.push(`Deleted ${count || 0} cocktail preferences`);
       } catch (error) {
         console.error('CustomerProfile: Cocktail preferences deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -182,14 +195,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (spiritsPrefsError) {
-          console.error('CustomerProfile: Error deleting spirits preferences:', spiritsPrefsError);
-          throw new Error(`Failed to delete spirits preferences: ${spiritsPrefsError.message} (Code: ${spiritsPrefsError.code})`);
-        }
+        validateDeleteOperation('Spirits preferences deletion', spiritsPrefsError, spiritsPrefsData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} spirits preferences`);
         deleteSteps.push(`Deleted ${count || 0} spirits preferences`);
       } catch (error) {
         console.error('CustomerProfile: Spirits preferences deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -202,14 +213,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (allergiesError) {
-          console.error('CustomerProfile: Error deleting allergies:', allergiesError);
-          throw new Error(`Failed to delete allergies: ${allergiesError.message} (Code: ${allergiesError.code})`);
-        }
+        validateDeleteOperation('Allergies deletion', allergiesError, allergiesData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} allergies`);
         deleteSteps.push(`Deleted ${count || 0} allergies`);
       } catch (error) {
         console.error('CustomerProfile: Allergies deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -222,14 +231,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (datesError) {
-          console.error('CustomerProfile: Error deleting important dates:', datesError);
-          throw new Error(`Failed to delete important dates: ${datesError.message} (Code: ${datesError.code})`);
-        }
+        validateDeleteOperation('Important dates deletion', datesError, datesData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} important dates`);
         deleteSteps.push(`Deleted ${count || 0} important dates`);
       } catch (error) {
         console.error('CustomerProfile: Important dates deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -242,14 +249,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (notablesError) {
-          console.error('CustomerProfile: Error deleting important notables:', notablesError);
-          throw new Error(`Failed to delete important notables: ${notablesError.message} (Code: ${notablesError.code})`);
-        }
+        validateDeleteOperation('Important notables deletion', notablesError, notablesData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} important notables`);
         deleteSteps.push(`Deleted ${count || 0} important notables`);
       } catch (error) {
         console.error('CustomerProfile: Important notables deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -262,14 +267,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (notesError) {
-          console.error('CustomerProfile: Error deleting customer notes:', notesError);
-          throw new Error(`Failed to delete customer notes: ${notesError.message} (Code: ${notesError.code})`);
-        }
+        validateDeleteOperation('Customer notes deletion', notesError, notesData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} customer notes`);
         deleteSteps.push(`Deleted ${count || 0} customer notes`);
       } catch (error) {
         console.error('CustomerProfile: Customer notes deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -282,10 +285,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (connectionsError1) {
-          console.error('CustomerProfile: Error deleting primary connections:', connectionsError1);
-          throw new Error(`Failed to delete primary connections: ${connectionsError1.message} (Code: ${connectionsError1.code})`);
-        }
+        validateDeleteOperation('Primary connections deletion', connectionsError1, connectionsData1, count1);
         console.log(`CustomerProfile: Successfully deleted ${count1 || 0} primary connections`);
         
         console.log('CustomerProfile: Step 11b - Deleting connections where customer is the connected one...');
@@ -295,14 +295,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('connected_customer_id', customer.id)
           .select('*');
         
-        if (connectionsError2) {
-          console.error('CustomerProfile: Error deleting reverse connections:', connectionsError2);
-          throw new Error(`Failed to delete reverse connections: ${connectionsError2.message} (Code: ${connectionsError2.code})`);
-        }
+        validateDeleteOperation('Reverse connections deletion', connectionsError2, connectionsData2, count2);
         console.log(`CustomerProfile: Successfully deleted ${count2 || 0} reverse connections`);
         deleteSteps.push(`Deleted ${(count1 || 0) + (count2 || 0)} total connections`);
       } catch (error) {
         console.error('CustomerProfile: Connections deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -315,14 +313,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('customer_id', customer.id)
           .select('*');
         
-        if (reservationsError) {
-          console.error('CustomerProfile: Error deleting reservations:', reservationsError);
-          throw new Error(`Failed to delete reservations: ${reservationsError.message} (Code: ${reservationsError.code})`);
-        }
+        validateDeleteOperation('Reservations deletion', reservationsError, reservationsData, count);
         console.log(`CustomerProfile: Successfully deleted ${count || 0} reservations`);
         deleteSteps.push(`Deleted ${count || 0} reservations`);
       } catch (error) {
         console.error('CustomerProfile: Reservations deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
@@ -350,14 +346,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
                 .eq('visit_id', visit.id)
                 .select('*');
               
-              if (ordersError) {
-                console.error(`CustomerProfile: Error deleting orders for visit ${visit.id}:`, ordersError);
-                throw new Error(`Failed to delete orders for visit ${visit.id}: ${ordersError.message} (Code: ${ordersError.code})`);
-              }
+              validateDeleteOperation(`Visit orders deletion for visit ${visit.id}`, ordersError, ordersData, count);
               totalVisitOrders += count || 0;
               console.log(`CustomerProfile: Deleted ${count || 0} orders for visit ${visit.id}`);
             } catch (error) {
               console.error(`CustomerProfile: Visit orders deletion failed for visit ${visit.id}:`, error);
+              hasErrors = true;
               throw error;
             }
           }
@@ -369,10 +363,7 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
             .eq('customer_id', customer.id)
             .select('*');
           
-          if (visitsError) {
-            console.error('CustomerProfile: Error deleting visits:', visitsError);
-            throw new Error(`Failed to delete visits: ${visitsError.message} (Code: ${visitsError.code})`);
-          }
+          validateDeleteOperation('Visits deletion', visitsError, visitsData, count);
           console.log(`CustomerProfile: Successfully deleted ${count || 0} visits`);
           deleteSteps.push(`Deleted ${count || 0} visits and ${totalVisitOrders} visit orders`);
         } else {
@@ -381,11 +372,16 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         }
       } catch (error) {
         console.error('CustomerProfile: Visits/visit orders deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
-      // Step 14: Finally delete the customer record
+      // Step 14: Finally delete the customer record (only if all previous steps succeeded)
       try {
+        if (hasErrors) {
+          throw new Error('Cannot delete customer record - previous deletion steps failed');
+        }
+        
         console.log('CustomerProfile: Step 14 - Deleting customer record...');
         const { data: customerData, error: customerError } = await supabase
           .from('customers')
@@ -393,14 +389,12 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
           .eq('id', customer.id)
           .select('*');
         
-        if (customerError) {
-          console.error('CustomerProfile: Error deleting customer:', customerError);
-          throw new Error(`Failed to delete customer: ${customerError.message} (Code: ${customerError.code})`);
-        }
+        validateDeleteOperation('Customer record deletion', customerError, customerData);
         console.log('CustomerProfile: Successfully deleted customer record');
         deleteSteps.push('Deleted customer record');
       } catch (error) {
         console.error('CustomerProfile: Customer record deletion failed:', error);
+        hasErrors = true;
         throw error;
       }
 
