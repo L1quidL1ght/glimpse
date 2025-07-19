@@ -137,356 +137,88 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
     
     try {
       const { customerCheck, role } = await validatePrerequisites();
-      console.log('CustomerProfile: Starting comprehensive delete process for customer:', customer.id, customer.name);
+      console.log('CustomerProfile: Starting atomic delete process for customer:', customer.id, customer.name);
       console.log('CustomerProfile: User role:', role);
       
-      // Step 1: Delete customer tags
-      try {
-        console.log('CustomerProfile: Step 1 - Deleting customer tags...');
-        const { data: tagsData, error: tagsError, count } = await supabase
-          .from('customer_tags')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Customer tags deletion', tagsError, tagsData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} customer tags`);
-        deleteSteps.push(`Deleted ${count || 0} customer tags`);
-      } catch (error) {
-        console.error('CustomerProfile: Customer tags deletion failed:', error);
-        hasErrors = true;
-        throw error;
+      // Check if user has admin role for customer deletion
+      if (role !== 'admin') {
+        console.error('CustomerProfile: Admin role required for customer deletion. Current role:', role);
+        throw new Error(`Admin role required for customer deletion. Current role: ${role || 'unknown'}`);
       }
       
-      // Step 2: Delete table preferences
-      try {
-        console.log('CustomerProfile: Step 2 - Deleting table preferences...');
-        const { data: tablePrefsData, error: tablePrefsError, count } = await supabase
-          .from('table_preferences')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Table preferences deletion', tablePrefsError, tablePrefsData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} table preferences`);
-        deleteSteps.push(`Deleted ${count || 0} table preferences`);
-      } catch (error) {
-        console.error('CustomerProfile: Table preferences deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 3: Delete food preferences
-      try {
-        console.log('CustomerProfile: Step 3 - Deleting food preferences...');
-        const { data: foodPrefsData, error: foodPrefsError, count } = await supabase
-          .from('food_preferences')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Food preferences deletion', foodPrefsError, foodPrefsData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} food preferences`);
-        deleteSteps.push(`Deleted ${count || 0} food preferences`);
-      } catch (error) {
-        console.error('CustomerProfile: Food preferences deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 4: Delete wine preferences
-      try {
-        console.log('CustomerProfile: Step 4 - Deleting wine preferences...');
-        const { data: winePrefsData, error: winePrefsError, count } = await supabase
-          .from('wine_preferences')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Wine preferences deletion', winePrefsError, winePrefsData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} wine preferences`);
-        deleteSteps.push(`Deleted ${count || 0} wine preferences`);
-      } catch (error) {
-        console.error('CustomerProfile: Wine preferences deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 5: Delete cocktail preferences
-      try {
-        console.log('CustomerProfile: Step 5 - Deleting cocktail preferences...');
-        const { data: cocktailPrefsData, error: cocktailPrefsError, count } = await supabase
-          .from('cocktail_preferences')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Cocktail preferences deletion', cocktailPrefsError, cocktailPrefsData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} cocktail preferences`);
-        deleteSteps.push(`Deleted ${count || 0} cocktail preferences`);
-      } catch (error) {
-        console.error('CustomerProfile: Cocktail preferences deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 6: Delete spirits preferences
-      try {
-        console.log('CustomerProfile: Step 6 - Deleting spirits preferences...');
-        const { data: spiritsPrefsData, error: spiritsPrefsError, count } = await supabase
-          .from('spirits_preferences')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Spirits preferences deletion', spiritsPrefsError, spiritsPrefsData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} spirits preferences`);
-        deleteSteps.push(`Deleted ${count || 0} spirits preferences`);
-      } catch (error) {
-        console.error('CustomerProfile: Spirits preferences deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 7: Delete allergies
-      try {
-        console.log('CustomerProfile: Step 7 - Deleting allergies...');
-        const { data: allergiesData, error: allergiesError, count } = await supabase
-          .from('allergies')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Allergies deletion', allergiesError, allergiesData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} allergies`);
-        deleteSteps.push(`Deleted ${count || 0} allergies`);
-      } catch (error) {
-        console.error('CustomerProfile: Allergies deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 8: Delete important dates
-      try {
-        console.log('CustomerProfile: Step 8 - Deleting important dates...');
-        const { data: datesData, error: datesError, count } = await supabase
-          .from('important_dates')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Important dates deletion', datesError, datesData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} important dates`);
-        deleteSteps.push(`Deleted ${count || 0} important dates`);
-      } catch (error) {
-        console.error('CustomerProfile: Important dates deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 9: Delete important notables
-      try {
-        console.log('CustomerProfile: Step 9 - Deleting important notables...');
-        const { data: notablesData, error: notablesError, count } = await supabase
-          .from('important_notables')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Important notables deletion', notablesError, notablesData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} important notables`);
-        deleteSteps.push(`Deleted ${count || 0} important notables`);
-      } catch (error) {
-        console.error('CustomerProfile: Important notables deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 10: Delete customer notes
-      try {
-        console.log('CustomerProfile: Step 10 - Deleting customer notes...');
-        const { data: notesData, error: notesError, count } = await supabase
-          .from('customer_notes')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Customer notes deletion', notesError, notesData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} customer notes`);
-        deleteSteps.push(`Deleted ${count || 0} customer notes`);
-      } catch (error) {
-        console.error('CustomerProfile: Customer notes deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 11: Delete connections (both directions)
-      try {
-        console.log('CustomerProfile: Step 11 - Deleting connections where customer is the primary...');
-        const { data: connectionsData1, error: connectionsError1, count: count1 } = await supabase
-          .from('connections')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Primary connections deletion', connectionsError1, connectionsData1, count1);
-        console.log(`CustomerProfile: Successfully deleted ${count1 || 0} primary connections`);
-        
-        console.log('CustomerProfile: Step 11b - Deleting connections where customer is the connected one...');
-        const { data: connectionsData2, error: connectionsError2, count: count2 } = await supabase
-          .from('connections')
-          .delete({ count: 'exact' })
-          .eq('connected_customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Reverse connections deletion', connectionsError2, connectionsData2, count2);
-        console.log(`CustomerProfile: Successfully deleted ${count2 || 0} reverse connections`);
-        deleteSteps.push(`Deleted ${(count1 || 0) + (count2 || 0)} total connections`);
-      } catch (error) {
-        console.error('CustomerProfile: Connections deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 12: Delete reservations
-      try {
-        console.log('CustomerProfile: Step 12 - Deleting reservations...');
-        const { data: reservationsData, error: reservationsError, count } = await supabase
-          .from('reservations')
-          .delete({ count: 'exact' })
-          .eq('customer_id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Reservations deletion', reservationsError, reservationsData, count);
-        console.log(`CustomerProfile: Successfully deleted ${count || 0} reservations`);
-        deleteSteps.push(`Deleted ${count || 0} reservations`);
-      } catch (error) {
-        console.error('CustomerProfile: Reservations deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 13: Delete visits and visit orders
-      try {
-        console.log('CustomerProfile: Step 13 - Fetching visits to delete visit orders...');
-        const { data: visits, error: visitsSelectError } = await supabase
-          .from('visits')
-          .select('id')
-          .eq('customer_id', customer.id);
-        
-        if (visitsSelectError) {
-          console.error('CustomerProfile: Error fetching visits:', visitsSelectError);
-          throw new Error(`Failed to fetch visits: ${visitsSelectError.message} (Code: ${visitsSelectError.code})`);
-        }
-
-        let totalVisitOrders = 0;
-        if (visits && visits.length > 0) {
-          console.log(`CustomerProfile: Found ${visits.length} visits, deleting their orders...`);
-          for (const visit of visits) {
-            try {
-              const { data: ordersData, error: ordersError, count } = await supabase
-                .from('visit_orders')
-                .delete({ count: 'exact' })
-                .eq('visit_id', visit.id)
-                .select('*');
-              
-              validateDeleteOperation(`Visit orders deletion for visit ${visit.id}`, ordersError, ordersData, count);
-              totalVisitOrders += count || 0;
-              console.log(`CustomerProfile: Deleted ${count || 0} orders for visit ${visit.id}`);
-            } catch (error) {
-              console.error(`CustomerProfile: Visit orders deletion failed for visit ${visit.id}:`, error);
-              hasErrors = true;
-              throw error;
-            }
-          }
-          
-          console.log('CustomerProfile: Step 13b - Deleting visits...');
-          const { data: visitsData, error: visitsError, count } = await supabase
-            .from('visits')
-            .delete({ count: 'exact' })
-            .eq('customer_id', customer.id)
-            .select('*');
-          
-          validateDeleteOperation('Visits deletion', visitsError, visitsData, count);
-          console.log(`CustomerProfile: Successfully deleted ${count || 0} visits`);
-          deleteSteps.push(`Deleted ${count || 0} visits and ${totalVisitOrders} visit orders`);
-        } else {
-          console.log('CustomerProfile: No visits found for customer');
-          deleteSteps.push('No visits to delete');
-        }
-      } catch (error) {
-        console.error('CustomerProfile: Visits/visit orders deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      // Step 14: Finally delete the customer record (only if all previous steps succeeded)
-      try {
-        if (hasErrors) {
-          throw new Error('Cannot delete customer record - previous deletion steps failed');
-        }
-        
-        console.log('CustomerProfile: Step 14 - Deleting customer record...');
-        console.log('CustomerProfile: Current user role for customer deletion:', role);
-        
-        // Check if user has admin role for customer deletion
-        if (role !== 'admin') {
-          console.error('CustomerProfile: Admin role required for customer deletion. Current role:', role);
-          throw new Error(`Admin role required for customer deletion. Current role: ${role || 'unknown'}`);
-        }
-        
-        const { data: customerData, error: customerError } = await supabase
-          .from('customers')
-          .delete()
-          .eq('id', customer.id)
-          .select('*');
-        
-        validateDeleteOperation('Customer record deletion', customerError, customerData);
-        console.log('CustomerProfile: Successfully deleted customer record');
-        deleteSteps.push('Deleted customer record');
-      } catch (error) {
-        console.error('CustomerProfile: Customer record deletion failed:', error);
-        hasErrors = true;
-        throw error;
-      }
-
-      console.log('CustomerProfile: All deletion steps completed successfully:', deleteSteps);
-      toast({
-        title: "Success",
-        description: `${customer.name} has been deleted successfully. ${deleteSteps.join(', ')}.`
+      console.log('CustomerProfile: Prerequisites validated. Proceeding with atomic deletion...');
+      
+      // Use the atomic deletion function that handles transactions and cascade deletes
+      const { data: deletionResult, error: deletionError } = await supabase.rpc('delete_customer_atomically', {
+        customer_uuid: customer.id
       });
       
-      // Step 15: Invalidate cache and navigate back
+      if (deletionError) {
+        console.error('CustomerProfile: Atomic deletion failed:', deletionError);
+        throw new Error(`Atomic deletion failed: ${deletionError.message} (Code: ${deletionError.code})`);
+      }
+      
+      // Parse the JSON result properly
+      const result = typeof deletionResult === 'string' ? JSON.parse(deletionResult) : deletionResult;
+      
+      if (!result || !result.success) {
+        console.error('CustomerProfile: Deletion function returned failure:', result);
+        throw new Error(`Deletion failed: ${result?.error || 'Unknown error in deletion function'}`);
+      }
+      
+      console.log('CustomerProfile: Atomic deletion completed successfully:', result);
+      
+      const deletedCounts = result.deleted_counts;
+      const deletionSummary = [
+        `Deleted ${deletedCounts.customer_tags} customer tags`,
+        `Deleted ${deletedCounts.table_preferences} table preferences`,
+        `Deleted ${deletedCounts.food_preferences} food preferences`,
+        `Deleted ${deletedCounts.wine_preferences} wine preferences`,
+        `Deleted ${deletedCounts.cocktail_preferences} cocktail preferences`,
+        `Deleted ${deletedCounts.spirits_preferences} spirits preferences`,
+        `Deleted ${deletedCounts.allergies} allergies`,
+        `Deleted ${deletedCounts.important_dates} important dates`,
+        `Deleted ${deletedCounts.important_notables} important notables`,
+        `Deleted ${deletedCounts.customer_notes} customer notes`,
+        `Deleted ${deletedCounts.connections} connections`,
+        `Deleted ${deletedCounts.reservations} reservations`,
+        `Deleted ${deletedCounts.visits} visits`,
+        `Deleted ${deletedCounts.visit_orders} visit orders`,
+        'Deleted customer record'
+      ];
+      
+      console.log('CustomerProfile: All deletion steps completed successfully:', deletionSummary);
+      
+      // Step: Invalidating cache and updating UI
       try {
-        console.log('CustomerProfile: Step 15 - Invalidating cache and updating UI...');
+        console.log('CustomerProfile: Step - Invalidating cache and updating UI...');
         await invalidateCustomerData();
         await invalidateAllCustomers();
-        onGuestUpdated();
-        onBack();
+        
         console.log('CustomerProfile: Cache invalidation and navigation completed');
-      } catch (error) {
-        console.error('CustomerProfile: Cache invalidation failed:', error);
-        // Don't throw here as the deletion was successful
+        
         toast({
-          title: "Warning",
-          description: "Guest deleted successfully, but there was an issue refreshing the data. Please refresh the page.",
+          title: "Guest deleted successfully",
+          description: `${customer.name} and all associated data have been permanently deleted. Summary: ${deletionSummary.join(', ')}`,
+        });
+        
+        onBack();
+      } catch (cacheError) {
+        console.warn('CustomerProfile: Cache invalidation failed, but deletion was successful:', cacheError);
+        toast({
+          title: "Guest deleted successfully",
+          description: `${customer.name} has been deleted. Please refresh the page to see updated data.`,
           variant: "destructive"
         });
-        onBack(); // Still navigate back
+        
+        onBack();
       }
 
     } catch (error) {
-      console.error('CustomerProfile: Guest deletion failed at step:', deleteSteps.length + 1, 'Error:', error);
-      console.error('CustomerProfile: Completed steps before failure:', deleteSteps);
-      
-      let errorMessage = 'Failed to delete guest. Please try again.';
-      if (error instanceof Error) {
-        errorMessage = `Delete failed: ${error.message}`;
-      }
-      
+      console.error('CustomerProfile: Guest deletion failed:', error);
       toast({
-        title: "Error",
-        description: errorMessage,
+        title: "Failed to delete guest",
+        description: error instanceof Error ? error.message : "An unexpected error occurred during deletion",
         variant: "destructive"
       });
     } finally {

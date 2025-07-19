@@ -41,6 +41,13 @@ export type Database = {
             referencedRelation: "customers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_allergies_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
         ]
       }
       cocktail_preferences: {
@@ -68,6 +75,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "cocktail_preferences_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_cocktail_preferences_customer_id"
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
@@ -112,6 +126,20 @@ export type Database = {
             referencedRelation: "customers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_connections_connected_customer_id"
+            columns: ["connected_customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_connections_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
         ]
       }
       customer_notes: {
@@ -144,6 +172,13 @@ export type Database = {
             referencedRelation: "customers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_customer_notes_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
         ]
       }
       customer_tags: {
@@ -168,6 +203,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "customer_tags_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_customer_tags_customer_id"
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
@@ -235,6 +277,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_food_preferences_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "food_preferences_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -267,6 +316,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_important_dates_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "important_dates_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -295,6 +351,13 @@ export type Database = {
           notable?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_important_notables_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "important_notables_customer_id_fkey"
             columns: ["customer_id"]
@@ -412,6 +475,13 @@ export type Database = {
             referencedRelation: "customers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_reservations_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
         ]
       }
       restaurant_tables: {
@@ -461,6 +531,13 @@ export type Database = {
           preference?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_spirits_preferences_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "spirits_preferences_customer_id_fkey"
             columns: ["customer_id"]
@@ -551,6 +628,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_table_preferences_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "table_preferences_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -582,6 +666,13 @@ export type Database = {
           visit_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_visit_orders_visit_id"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "visits"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "visit_orders_visit_id_fkey"
             columns: ["visit_id"]
@@ -621,6 +712,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_visits_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "visits_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -653,6 +751,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_wine_preferences_customer_id"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "wine_preferences_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -666,6 +771,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_customer_atomically: {
+        Args: { customer_uuid: string }
+        Returns: Json
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
