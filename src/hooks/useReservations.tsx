@@ -36,7 +36,7 @@ export const useReservations = () => {
         .from('reservations')
         .select(`
           *,
-          customer:customers (
+          customers (
             name,
             email,
             phone
@@ -47,10 +47,15 @@ export const useReservations = () => {
 
       if (error) throw error;
 
-      // Transform and ensure proper typing
+      // Transform and ensure proper typing with safe customer handling
       const typedReservations: Reservation[] = (data || []).map(item => ({
         ...item,
-        status: item.status as 'confirmed' | 'cancelled' | 'completed' | 'no_show'
+        status: item.status as 'confirmed' | 'cancelled' | 'completed' | 'no_show',
+        customer: item.customers ? {
+          name: item.customers.name,
+          email: item.customers.email,
+          phone: item.customers.phone
+        } : undefined
       }));
 
       setReservations(typedReservations);
