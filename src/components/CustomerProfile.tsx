@@ -92,9 +92,53 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
       console.log(`CustomerProfile: ${operation} completed successfully. Count: ${count || 0}, Data length: ${data?.length || 0}`);
       return true;
     };
+
+    // Validate customer exists and get current user role
+    const validatePrerequisites = async () => {
+      console.log('CustomerProfile: Validating prerequisites...');
+      
+      // Check if customer exists
+      if (!customer || !customer.id) {
+        throw new Error('Invalid customer: Customer ID is missing or invalid');
+      }
+      
+      // Check if customer exists in database
+      const { data: customerCheck, error: customerCheckError } = await supabase
+        .from('customers')
+        .select('id, name')
+        .eq('id', customer.id)
+        .single();
+      
+      if (customerCheckError) {
+        console.error('CustomerProfile: Customer validation failed:', customerCheckError);
+        throw new Error(`Customer validation failed: ${customerCheckError.message}`);
+      }
+      
+      if (!customerCheck) {
+        throw new Error('Customer not found in database');
+      }
+      
+      console.log(`CustomerProfile: Customer validated: ${customerCheck.name} (${customerCheck.id})`);
+      
+      // Check staff authentication and role
+      const { data: roleData, error: roleError } = await supabase.rpc('get_current_user_role');
+      console.log('CustomerProfile: Current user role:', roleData, 'Error:', roleError);
+      
+      // Check staff authentication
+      const { data: authData, error: authError } = await supabase.rpc('is_staff_authenticated');
+      console.log('CustomerProfile: Staff authenticated:', authData, 'Error:', authError);
+      
+      if (!authData) {
+        throw new Error('Staff authentication required for deletion operations');
+      }
+      
+      return { customerCheck, role: roleData };
+    };
     
     try {
+      const { customerCheck, role } = await validatePrerequisites();
       console.log('CustomerProfile: Starting comprehensive delete process for customer:', customer.id, customer.name);
+      console.log('CustomerProfile: User role:', role);
       
       // Step 1: Delete customer tags
       try {
@@ -383,6 +427,14 @@ const CustomerProfile: React.FC<CustomerProfileProps> = ({
         }
         
         console.log('CustomerProfile: Step 14 - Deleting customer record...');
+        console.log('CustomerProfile: Current user role for customer deletion:', role);
+        
+        // Check if user has admin role for customer deletion
+        if (role !== 'admin') {
+          console.error('CustomerProfile: Admin role required for customer deletion. Current role:', role);
+          throw new Error(`Admin role required for customer deletion. Current role: ${role || 'unknown'}`);
+        }
+        
         const { data: customerData, error: customerError } = await supabase
           .from('customers')
           .delete()
