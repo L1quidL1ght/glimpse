@@ -4,9 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, Loader2, Building } from 'lucide-react';
+import { Shield, Loader2, Building, Delete } from 'lucide-react';
 import Logo from '@/components/Logo';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -87,21 +86,35 @@ const Auth = () => {
     }
   };
 
-  const handlePinChange = (value: string) => {
-    setPin(value);
-    // Clear error when user starts typing again
-    if (error) {
-      setError('');
+  const handleNumberPress = (num: string) => {
+    if (pin.length < 4 && !loading) {
+      const newPin = pin + num;
+      setPin(newPin);
+      if (error) {
+        setError('');
+      }
+      // Auto-submit when 4 digits are entered
+      if (newPin.length === 4) {
+        setTimeout(() => handlePinSubmit(), 100);
+      }
     }
   };
 
-  const handlePinBlur = () => {
-    validatePin(pin);
+  const handleBackspace = () => {
+    if (pin.length > 0 && !loading) {
+      setPin(pin.slice(0, -1));
+      if (error) {
+        setError('');
+      }
+    }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && pin.length === 4) {
-      handlePinSubmit();
+  const handleClear = () => {
+    if (!loading) {
+      setPin('');
+      if (error) {
+        setError('');
+      }
     }
   };
 
@@ -126,38 +139,80 @@ const Auth = () => {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <div className="space-y-4">
+          <div className="space-y-6">
+            {/* PIN Display */}
             <div className="text-center">
               <label className="text-sm font-medium text-foreground mb-4 block">
                 Enter PIN
               </label>
-              <div className="flex justify-center">
-                <div onBlur={handlePinBlur}>
-                  <InputOTP
-                    value={pin}
-                    onChange={handlePinChange}
-                    maxLength={4}
-                    disabled={loading}
-                    onKeyDown={handleKeyDown}
+              <div className="flex justify-center gap-3 mb-6">
+                {[0, 1, 2, 3].map((index) => (
+                  <div
+                    key={index}
+                    className="w-12 h-12 border border-input rounded-md flex items-center justify-center bg-background text-lg font-mono"
                   >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
+                    {pin[index] ? '•' : ''}
+                  </div>
+                ))}
               </div>
               {error && (
                 <p className="text-sm text-destructive mt-2">{error}</p>
               )}
             </div>
 
+            {/* Custom Number Pad */}
+            <div className="flex flex-col items-center space-y-4">
+              <div className="grid grid-cols-3 gap-3 max-w-xs w-full">
+                {/* Numbers 1-9 */}
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                  <Button
+                    key={num}
+                    onClick={() => handleNumberPress(num.toString())}
+                    disabled={loading || pin.length >= 4}
+                    variant="outline"
+                    className="h-14 text-xl font-semibold rounded-xl hover:bg-accent hover:scale-105 transition-all duration-200 touch-manipulation"
+                    inputMode="numeric"
+                  >
+                    {num}
+                  </Button>
+                ))}
+                
+                {/* Bottom row: Clear, 0, Backspace */}
+                <Button
+                  onClick={handleClear}
+                  disabled={loading}
+                  variant="outline"
+                  className="h-14 text-sm font-medium rounded-xl hover:bg-accent hover:scale-105 transition-all duration-200 touch-manipulation"
+                >
+                  Clear
+                </Button>
+                
+                <Button
+                  onClick={() => handleNumberPress('0')}
+                  disabled={loading || pin.length >= 4}
+                  variant="outline"
+                  className="h-14 text-xl font-semibold rounded-xl hover:bg-accent hover:scale-105 transition-all duration-200 touch-manipulation"
+                  inputMode="numeric"
+                >
+                  0
+                </Button>
+                
+                <Button
+                  onClick={handleBackspace}
+                  disabled={loading || pin.length === 0}
+                  variant="outline"
+                  className="h-14 text-sm font-medium rounded-xl hover:bg-accent hover:scale-105 transition-all duration-200 touch-manipulation"
+                >
+                  <Delete className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Sign In Button */}
             <Button
               onClick={handlePinSubmit}
               disabled={loading || pin.length !== 4}
-              className="w-full h-12 text-lg"
+              className="w-full h-12 text-lg mt-6"
             >
               {loading ? (
                 <>
@@ -169,16 +224,11 @@ const Auth = () => {
               )}
             </Button>
           </div>
-
-          <div className="text-center text-sm text-muted-foreground">
-            <p>Default PIN for testing: 1234</p>
-          </div>
         </CardContent>
 
         <div className="mt-6 pt-6 border-t border-border/50 text-center">
           <p className="text-xs text-muted-foreground">
-            <Shield className="w-3 h-3 inline mr-1" />
-            Secure restaurant management system
+            Created with ♥️ + 🍺 by Lorenzo
           </p>
         </div>
       </Card>
